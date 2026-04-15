@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  REQUESTER
+  TECHNICIAN
+  ADMIN
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketStatus {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  PENDING_USER
+  RESOLVED
+  CLOSED
+}
+
+enum CommentType {
+  PUBLIC
+  INTERNAL_NOTE
+  RESOLUTION_NOTE
+}
+
+model User {
+  id                    String               @id @default(uuid()) @db.Uuid
+  fullName              String
+  email                 String               @unique
+  passwordHash          String
+  department            String?
+  role                  UserRole             @default(REQUESTER)
+  isActive              Boolean              @default(true)
+  lastLoginAt           DateTime?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  requestedTickets      Ticket[]             @relation("RequestedTickets")
+  assignedTickets       Ticket[]             @relation("AssignedTickets")
+  comments              TicketComment[]
+  statusChanges         TicketStatusHistory[]
+  attachments           Attachment[]
+  passwordResetTokens   PasswordResetToken[]
+}
+
+model Category {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tickets     Ticket[]
+}
+
+model Ticket {
+  id                 String                @id @default(uuid()) @db.Uuid
+  ticketNumber       String                @unique
+  title              String
+  description        String
+  requesterId        String                @db.Uuid
+  assignedToId       String?               @db.Uuid
+  categoryId         String                @db.Uuid
+  priority           TicketPriority        @default(MEDIUM)
+  status             TicketStatus          @default(OPEN)
+  rootCause          String?
+  resolutionSummary  String?
+  reopenReason       String?
+  location           String?
+  assetTag           String?
+  firstResponseAt    DateTime?
+  resolvedAt         DateTime?
+  closedAt           DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  requester          User                  @relation("RequestedTickets", fields: [requesterId], references: [id])
+  assignedTo         User?                 @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  category           Category              @relation(fields: [categoryId], references: [id])
+  comments           TicketComment[]
+  statusHistory      TicketStatusHistory[]
+  attachments        Attachment[]
+
+  @@index([requesterId])
+  @@index([assignedToId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+}
+
+model TicketComment {
+  id         String      @id @default(uuid()) @db.Uuid
+  ticketId   String      @db.Uuid
+  authorId   String      @db.Uuid
+  type       CommentType @default(PUBLIC)
+  body       String
+  createdAt  DateTime    @default(now())
+  ticket     Ticket      @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author     User        @relation(fields: [authorId], references: [id])
+
+  @@index([ticketId, createdAt])
+  @@index([authorId])
+}
+
+model TicketStatusHistory {
+  id          String        @id @default(uuid()) @db.Uuid
+  ticketId    String        @db.Uuid
+  changedById String        @db.Uuid
+  fromStatus  TicketStatus?
+  toStatus    TicketStatus
+  note        String?
+  createdAt   DateTime      @default(now())
+  ticket      Ticket        @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  changedBy   User          @relation(fields: [changedById], references: [id])
+
+  @@index([ticketId, createdAt])
+  @@index([changedById])
+}
+
+model Attachment {
+  id           String   @id @default(uuid()) @db.Uuid
+  ticketId     String   @db.Uuid
+  uploadedById String   @db.Uuid
+  fileName     String
+  fileUrl      String
+  mimeType     String
+  fileSize     Int
+  createdAt    DateTime @default(now())
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+
+  @@index([ticketId, createdAt])
+  @@index([uploadedById])
+}
+
+model PasswordResetToken {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
