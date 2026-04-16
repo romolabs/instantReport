@@ -15,6 +15,12 @@ export default async function AppLayout({
     { href: "/tickets/new", label: "Create ticket" },
     ...(isStaffRole(user.role)
       ? [{ href: "/admin/tickets", label: "All tickets" }]
+      : []),
+    ...(user.role === "ADMIN"
+      ? [
+          { href: "/admin/users", label: "Users" },
+          { href: "/admin/categories", label: "Categories" }
+        ]
       : [])
   ];
 

@@ -1,19 +1,22 @@
 import { backendFetch } from "./backend";
+export type { CategoryOption, CategoryRecord } from "./category-types";
+import type { CategoryRecord, CategoryOption } from "./category-types";
 
-export interface CategoryOption {
-  id: string;
-  name: string;
-  description: string | null;
-  isActive: boolean;
-}
-
-export async function getCategories() {
+async function loadCategories() {
   const response = await backendFetch("/categories");
 
   if (!response.ok) {
     throw new Error("Unable to load categories");
   }
 
-  const categories = (await response.json()) as CategoryOption[];
+  return (await response.json()) as CategoryRecord[];
+}
+
+export async function getCategories() {
+  const categories = await loadCategories();
   return categories.filter((category) => category.isActive);
+}
+
+export async function getAllCategories() {
+  return loadCategories();
 }

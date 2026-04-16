@@ -43,3 +43,13 @@ export async function requireStaffUser() {
 
   return user;
 }
+
+export async function requireAdminUser() {
+  const user = await requireAuthenticatedUser();
+
+  if (user.role !== "ADMIN") {
+    redirect("/tickets");
+  }
+
+  return user;
+}

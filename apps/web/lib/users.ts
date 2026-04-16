@@ -1,16 +1,7 @@
 import { backendFetch } from "./backend";
-
-export interface PublicUser {
-  id: string;
-  fullName: string;
-  email: string;
-  department: string | null;
-  role: "REQUESTER" | "TECHNICIAN" | "ADMIN";
-  isActive: boolean;
-  lastLoginAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+export type { CreateUserInput, PublicUser, UpdateUserInput, UserRole } from "./user-types";
+export { USER_ROLE_LABELS, USER_ROLE_OPTIONS } from "./user-types";
+import type { PublicUser } from "./user-types";
 
 export async function getUsers() {
   const response = await backendFetch("/users");

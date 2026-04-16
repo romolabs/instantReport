@@ -1,35 +1,26 @@
 import { NextResponse } from "next/server";
 
 import { backendFetch } from "@/lib/backend";
-import type { CreateUserInput } from "@/lib/user-types";
 
 export async function GET() {
-  const response = await backendFetch("/users");
+  const response = await backendFetch("/categories");
 
   const payload = await response.json().catch(() => ({
-    message: "Unable to load users"
+    message: "Unable to load categories"
   }));
 
   return NextResponse.json(payload, { status: response.status });
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json().catch(() => null)) as CreateUserInput | null;
-
-  if (!body) {
-    return NextResponse.json(
-      { message: "Unable to create user" },
-      { status: 400 }
-    );
-  }
-
-  const response = await backendFetch("/users", {
+  const body = await request.json();
+  const response = await backendFetch("/categories", {
     method: "POST",
     body: JSON.stringify(body)
   });
 
   const payload = await response.json().catch(() => ({
-    message: "Unable to create user"
+    message: "Unable to create category"
   }));
 
   return NextResponse.json(payload, { status: response.status });

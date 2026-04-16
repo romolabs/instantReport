@@ -1,0 +1,106 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+  gap: 24px;
+  padding: 24px;
+  border-radius: 28px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(160deg, rgba(18, 26, 51, 0.98), rgba(11, 15, 28, 0.92)),
+    radial-gradient(circle at top left, rgba(87, 211, 145, 0.14), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(240, 197, 111, 0.16), transparent 36%);
+  box-shadow: 0 22px 52px rgba(0, 0, 0, 0.18);
+}
+
+.kicker {
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent-2);
+  font-size: 0.76rem;
+}
+
+.hero h2 {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.1rem, 3.6vw, 3.8rem);
+  line-height: 0.98;
+}
+
+.copy {
+  max-width: 62ch;
+  margin: 18px 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.heroRail {
+  display: grid;
+  gap: 14px;
+}
+
+.metricCard {
+  display: grid;
+  gap: 10px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.metricLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent-2);
+  font-size: 0.76rem;
+}
+
+.metricCard strong {
+  font-size: 2.6rem;
+  line-height: 1;
+  color: #fff8ed;
+}
+
+.metricCard p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metricGrid article {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.metricGrid span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metricGrid strong {
+  color: #fff8ed;
+  font-size: 1.08rem;
+}
+
+@media (max-width: 960px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+}
