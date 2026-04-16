@@ -15,6 +15,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:migrate:status": "prisma migrate status",
+    "test:api:smoke": "node scripts/api-smoke-test.mjs",
     "test": "echo \"Add tests next\" && exit 0"
   },
   "keywords": [],

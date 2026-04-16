@@ -194,34 +194,43 @@ Important workflow statuses:
   - resolve the ticket with a resolution summary
   - confirm the status history and resolution summary render correctly
   - confirm the new detail-page attachment uploader renders in the live page
+- Additional web runtime verification is now complete:
+  - detail-page attachment upload succeeded with a real sample file
+  - `RESOLVED -> IN_PROGRESS` reopen succeeded with a reopen reason
+  - `CLOSED -> RESOLVED` now correctly requires a reopen reason in the UI and succeeds once provided
+- Admin operations UI is now live in the web app:
+  - `/admin/users` can create and update users
+  - `/admin/categories` can create and update categories
+- The authenticated web dashboard at `/` now shows live role-aware reporting metrics
+- A repo-native API smoke test now exists at `npm run test:api:smoke`
+  - verifies login, ticket creation, attachment upload, assignment, reopen, and close against the local API
 
 ## Current Reality
 
 The core requester-facing and admin/staff web flows are build-verified and runtime-verified locally.
-The detail-page attachment uploader is rendered and integrated, but it still needs a dedicated live upload verification pass.
+The core requester-facing and admin/staff web flows are build-verified and runtime-verified locally, including the detail-page uploader and reopen flows.
 
 What is still placeholder-only:
 
 - mobile-to-API integration
-- tests
-- user/category management UI
-- reporting dashboards
+- deeper browser-level test coverage
 
 ## Temporary Implementation Notes
 
 - `forgot-password` currently returns the raw reset token in the response because email delivery is not wired yet.
 - Once email delivery exists, that token should be sent out-of-band and removed from the API response.
-- The detail-page attachment uploader is rendered and build-verified; the original ticket-creation attachment flow is already runtime-verified, but the new detail-page upload action itself still deserves a dedicated live upload test with a sample file.
+- The API smoke harness requires the local backend to be running, and defaults to `http://127.0.0.1:4000/api`.
+- It uses the seeded admin credentials by default unless `SMOKE_ADMIN_EMAIL` and `SMOKE_ADMIN_PASSWORD` are set.
 
 ## Recommended Next Steps
 
 Build in this order:
 
 1. Decide whether attachments remain on local disk or move to object storage.
-2. Add user/category management UI and first reporting screens.
-3. Do a dedicated live verification pass for the new detail-page attachment uploader and the reopen path.
-4. Wire the Flutter client to the backend auth and ticket endpoints.
-5. Add tests for auth, tickets, and status transitions.
+2. Wire the Flutter client to the backend auth and ticket endpoints.
+3. Add browser-level web tests for the detail-page attachment and reopen flows.
+4. Expand automated coverage for auth, tickets, and status transitions.
+5. Add richer reporting only if the current dashboard needs deeper analytics.
 
 ## Immediate Next Coding Target
 
@@ -229,9 +238,9 @@ If a new thread picks this up, the best next move is:
 
 Either:
 
-- verify the new detail-page attachment uploader with a real uploaded sample file, then
-- start the first user/category management or reporting screens, or
-- begin wiring Flutter auth and ticket-list flows against the now-proven API contract.
+- begin wiring Flutter auth and ticket-list flows against the now-proven API contract, or
+- add browser-level tests for the detail-page attachment and reopen flows, or
+- make the attachment storage strategy explicit before deployment planning goes further.
 
 ## Files To Read First In A New Session
 

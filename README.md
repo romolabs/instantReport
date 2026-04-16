@@ -67,7 +67,10 @@ For local web + API development, run the backend on port `4000` so the Next.js a
   - app routes require authentication
   - `/tickets` loads real data from the API
   - `/tickets/new` creates real tickets and uploads attachments
+  - `/` now renders a live dashboard with role-aware queue and reporting metrics
   - `/admin/tickets` shows a live triage queue for staff users
+  - `/admin/users` manages real users
+  - `/admin/categories` manages real categories
   - `/tickets/[ticketId]` loads real ticket detail, attachments, comments, and status history
   - staff can assign tickets with a handoff note
   - staff can post internal and resolution notes
@@ -82,16 +85,15 @@ For local web + API development, run the backend on port `4000` so the Next.js a
     - status changes into active work
     - resolution close-out with summary
 - `apps/mobile` contains a Flutter scaffold with login, shell navigation, and placeholder ticket screens.
+- `npm run test:api:smoke` now runs a real backend smoke test for login, ticket creation, attachment upload, assignment, reopen, and close flows against a running local API.
 
 ## Next Build Steps
 
 - Add seed refinement for production bootstrap
 - Decide whether attachment storage should stay local or move to object storage later
-- Add user/category management UI and reporting screens
-- Verify the new detail-page attachment uploader with a live file upload pass
-- Add reopen flow polish and tighter workflow guardrails in the web client
 - Wire the Flutter client to the backend API
-- Add tests
+- Add browser-level web tests for the detail-page attachment and reopen flows
+- Expand automated coverage beyond the API smoke harness
 
 ## Migrations And Bootstrap
 
