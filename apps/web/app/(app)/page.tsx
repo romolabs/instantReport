@@ -2,6 +2,13 @@ import Link from "next/link";
 
 import { isStaffRole, requireAuthenticatedUser } from "@/lib/auth";
 import { getAllCategories } from "@/lib/categories";
+import {
+  formatRelativeDate,
+  getDictionary,
+  interpolate,
+  translateStatus
+} from "@/lib/i18n";
+import { getCurrentLocale } from "@/lib/i18n-server";
 import { getTickets, type TicketListItem } from "@/lib/tickets";
 import { getUsers } from "@/lib/users";
 
@@ -50,11 +57,11 @@ function countResolvedRecently(tickets: TicketListItem[]) {
   }).length;
 }
 
-function averageFirstResponseHours(tickets: TicketListItem[]) {
+function averageFirstResponseHours(tickets: TicketListItem[], emptyLabel: string) {
   const responded = tickets.filter((ticket) => ticket.firstResponseAt);
 
   if (responded.length === 0) {
-    return "N/A";
+    return emptyLabel;
   }
 
   const totalHours = responded.reduce((sum, ticket) => {
@@ -88,44 +95,16 @@ function recentTickets(tickets: TicketListItem[]) {
     .slice(0, 5);
 }
 
-function formatRelativeDate(input: string) {
-  const delta = Date.now() - new Date(input).getTime();
-  const minutes = Math.floor(delta / 60000);
-
-  if (minutes < 1) {
-    return "Just now";
-  }
-
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return `${hours}h ago`;
-  }
-
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
-function statusLabel(status: string) {
-  return status
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
 function buildMetricCards(
   tickets: TicketListItem[],
   statusCounts: Record<TicketStatus, number>,
-  staffView: boolean
+  staffView: boolean,
+  copy: ReturnType<typeof getDictionary>["dashboard"]
 ) {
   if (staffView) {
     return [
       {
-        label: "Active work",
+        label: copy.metricsStaff.activeWork,
         value: String(
           statusCounts.OPEN +
             statusCounts.ASSIGNED +
@@ -133,21 +112,24 @@ function buildMetricCards(
             statusCounts.PENDING_USER
         )
       },
-      { label: "Waiting on user", value: String(statusCounts.PENDING_USER) },
-      { label: "Resolved this week", value: String(countResolvedRecently(tickets)) },
-      { label: "Urgent tickets", value: String(countUrgent(tickets)) }
+      { label: copy.metricsStaff.waitingOnUser, value: String(statusCounts.PENDING_USER) },
+      { label: copy.metricsStaff.resolvedThisWeek, value: String(countResolvedRecently(tickets)) },
+      { label: copy.metricsStaff.urgentTickets, value: String(countUrgent(tickets)) }
     ];
   }
 
   return [
-    { label: "My open tickets", value: String(statusCounts.OPEN + statusCounts.ASSIGNED) },
-    { label: "In progress", value: String(statusCounts.IN_PROGRESS) },
-    { label: "Waiting on me", value: String(statusCounts.PENDING_USER) },
-    { label: "Resolved this week", value: String(countResolvedRecently(tickets)) }
+    { label: copy.metricsRequester.openMine, value: String(statusCounts.OPEN + statusCounts.ASSIGNED) },
+    { label: copy.metricsRequester.inProgress, value: String(statusCounts.IN_PROGRESS) },
+    { label: copy.metricsRequester.waitingOnMe, value: String(statusCounts.PENDING_USER) },
+    { label: copy.metricsRequester.resolvedThisWeek, value: String(countResolvedRecently(tickets)) }
   ];
 }
 
 export default async function AppHomePage() {
+  const locale = await getCurrentLocale();
+  const dictionary = getDictionary(locale);
+  const copy = dictionary.dashboard;
   const user = await requireAuthenticatedUser();
   const adminView = user.role === "ADMIN";
   const [tickets, users, categories] = await Promise.all([
@@ -157,7 +139,7 @@ export default async function AppHomePage() {
   ]);
   const staffView = isStaffRole(user.role);
   const statusCounts = countByStatus(tickets);
-  const metrics = buildMetricCards(tickets, statusCounts, staffView);
+  const metrics = buildMetricCards(tickets, statusCounts, staffView, copy);
   const categoryLeaders = topCategories(tickets);
   const latestTickets = recentTickets(tickets);
   const activeUsers = users?.filter((entry) => entry.isActive) ?? [];
@@ -169,30 +151,26 @@ export default async function AppHomePage() {
     <>
       <section className={styles.hero}>
         <div>
-          <p className={styles.kicker}>{staffView ? "Operations dashboard" : "My dashboard"}</p>
-          <h2>
-            {staffView
-              ? "See queue pressure, response pace, and the work that needs attention next."
-              : "Track your requests without losing the full support history."}
-          </h2>
-          <p className={styles.copy}>
-            {staffView
-              ? "This view is computed from the live ticket stream, so the team can spot workload, urgency, and category concentration without opening each case one by one."
-              : "This view shows the live state of your tickets, including what is moving, what is waiting on you, and where recent updates landed."}
+          <p className={styles.kicker}>
+            {staffView ? copy.kickerStaff : copy.kickerRequester}
           </p>
+          <h2>
+            {staffView ? copy.titleStaff : copy.titleRequester}
+          </h2>
+          <p className={styles.copy}>{staffView ? copy.copyStaff : copy.copyRequester}</p>
         </div>
 
         <div className={styles.heroActions}>
           <Link href="/tickets/new" className={styles.cta}>
-            Create ticket
+            {copy.createTicket}
           </Link>
           {staffView ? (
             <Link href="/admin/tickets" className={styles.secondaryCta}>
-              Open queue
+              {copy.openQueue}
             </Link>
           ) : (
             <Link href="/tickets" className={styles.secondaryCta}>
-              Review my tickets
+              {copy.reviewTickets}
             </Link>
           )}
         </div>
@@ -211,16 +189,18 @@ export default async function AppHomePage() {
         <article className={styles.panel}>
           <div className={styles.panelHead}>
             <div>
-              <p className={styles.sectionLabel}>Workflow</p>
-              <h3>Status breakdown</h3>
+              <p className={styles.sectionLabel}>{copy.workflowLabel}</p>
+              <h3>{copy.workflowTitle}</h3>
             </div>
-            <span className={styles.inlineMeta}>{tickets.length} tickets in view</span>
+            <span className={styles.inlineMeta}>
+              {interpolate(copy.ticketsInView, { count: tickets.length })}
+            </span>
           </div>
 
           <div className={styles.statusGrid}>
             {Object.entries(statusCounts).map(([status, count]) => (
               <div key={status} className={styles.statusCard}>
-                <span>{statusLabel(status)}</span>
+                <span>{translateStatus(locale, status)}</span>
                 <strong>{count}</strong>
               </div>
             ))}
@@ -230,23 +210,23 @@ export default async function AppHomePage() {
         <article className={styles.panel}>
           <div className={styles.panelHead}>
             <div>
-              <p className={styles.sectionLabel}>Signal</p>
-              <h3>Operational highlights</h3>
+              <p className={styles.sectionLabel}>{copy.signalLabel}</p>
+              <h3>{copy.signalTitle}</h3>
             </div>
           </div>
 
           <div className={styles.highlights}>
             <div className={styles.highlightCard}>
-              <span>Average first response</span>
-              <strong>{averageFirstResponseHours(tickets)}</strong>
+              <span>{copy.averageFirstResponse}</span>
+              <strong>{averageFirstResponseHours(tickets, copy.notAvailable)}</strong>
             </div>
             <div className={styles.highlightCard}>
-              <span>Tickets with evidence</span>
+              <span>{copy.ticketsWithEvidence}</span>
               <strong>{countWithAttachments(tickets)}</strong>
             </div>
             <div className={styles.highlightCard}>
-              <span>Top category</span>
-              <strong>{categoryLeaders[0]?.[0] ?? "No data yet"}</strong>
+              <span>{copy.topCategory}</span>
+              <strong>{categoryLeaders[0]?.[0] ?? copy.noDataYet}</strong>
             </div>
           </div>
 
@@ -259,7 +239,7 @@ export default async function AppHomePage() {
                 </div>
               ))
             ) : (
-              <p className={styles.emptyCopy}>Category trends will appear once tickets exist.</p>
+              <p className={styles.emptyCopy}>{copy.trendsEmpty}</p>
             )}
           </div>
         </article>
@@ -268,8 +248,8 @@ export default async function AppHomePage() {
       <section className={styles.panel}>
         <div className={styles.panelHead}>
           <div>
-            <p className={styles.sectionLabel}>Recent activity</p>
-            <h3>{staffView ? "Latest queue movement" : "Latest changes to my tickets"}</h3>
+            <p className={styles.sectionLabel}>{copy.recentLabel}</p>
+            <h3>{staffView ? copy.recentTitleStaff : copy.recentTitleRequester}</h3>
           </div>
         </div>
 
@@ -287,18 +267,16 @@ export default async function AppHomePage() {
                 </div>
 
                 <div className={styles.ticketMeta}>
-                  <span>{statusLabel(ticket.status)}</span>
-                  <span>{ticket.priority.toLowerCase()}</span>
+                  <span>{translateStatus(locale, ticket.status)}</span>
+                  <span>{translateStatus(locale, ticket.priority)}</span>
                   <span>{ticket.category.name}</span>
-                  <span>{formatRelativeDate(ticket.updatedAt)}</span>
+                  <span>{formatRelativeDate(locale, ticket.updatedAt)}</span>
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <p className={styles.emptyCopy}>
-            No ticket activity yet. Create the first ticket to start the record.
-          </p>
+          <p className={styles.emptyCopy}>{copy.recentEmpty}</p>
         )}
       </section>
 
@@ -307,22 +285,22 @@ export default async function AppHomePage() {
           <article className={styles.panel}>
             <div className={styles.panelHead}>
               <div>
-                <p className={styles.sectionLabel}>Coverage</p>
-                <h3>User directory</h3>
+                <p className={styles.sectionLabel}>{copy.coverageLabel}</p>
+                <h3>{copy.coverageTitle}</h3>
               </div>
             </div>
 
             <div className={styles.statusGrid}>
               <div className={styles.statusCard}>
-                <span>Active users</span>
+                <span>{copy.activeUsers}</span>
                 <strong>{activeUsers.length}</strong>
               </div>
               <div className={styles.statusCard}>
-                <span>Staff seats</span>
+                <span>{copy.staffSeats}</span>
                 <strong>{staffUsers.length}</strong>
               </div>
               <div className={styles.statusCard}>
-                <span>Admins</span>
+                <span>{copy.admins}</span>
                 <strong>{activeUsers.filter((entry) => entry.role === "ADMIN").length}</strong>
               </div>
             </div>
@@ -331,22 +309,22 @@ export default async function AppHomePage() {
           <article className={styles.panel}>
             <div className={styles.panelHead}>
               <div>
-                <p className={styles.sectionLabel}>Catalog</p>
-                <h3>Category coverage</h3>
+                <p className={styles.sectionLabel}>{copy.catalogLabel}</p>
+                <h3>{copy.catalogTitle}</h3>
               </div>
             </div>
 
             <div className={styles.statusGrid}>
               <div className={styles.statusCard}>
-                <span>Active categories</span>
+                <span>{copy.activeCategories}</span>
                 <strong>{activeCategories.length}</strong>
               </div>
               <div className={styles.statusCard}>
-                <span>Inactive categories</span>
+                <span>{copy.inactiveCategories}</span>
                 <strong>{categories.length - activeCategories.length}</strong>
               </div>
               <div className={styles.statusCard}>
-                <span>Live leaders</span>
+                <span>{copy.liveLeaders}</span>
                 <strong>{categoryLeaders.length}</strong>
               </div>
             </div>

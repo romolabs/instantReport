@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { getDictionary, interpolate, translateStatus, type Locale } from "@/lib/i18n";
+
 import styles from "./admin-ticket-queue-view.module.css";
 
 export type AdminTicketStatus =
@@ -29,9 +31,11 @@ export interface AdminTicket {
   hasAttachments?: boolean;
   responseLabel?: string;
   summary?: string;
+  needsFirstResponse?: boolean;
 }
 
 export interface AdminTicketQueueViewProps {
+  locale: Locale;
   tickets?: AdminTicket[];
   currentUserRole?: "admin" | "technician";
 }
@@ -41,15 +45,6 @@ type QueueQuickFilter =
   | "urgent"
   | "needs_response"
   | "with_attachments";
-
-const statusCopy: Record<AdminTicketStatus, string> = {
-  open: "Open",
-  assigned: "Assigned",
-  in_progress: "In progress",
-  pending_user: "Pending user",
-  resolved: "Resolved",
-  closed: "Closed"
-};
 
 const statusTone: Record<AdminTicketStatus, string> = {
   open: styles.statusOpen,
@@ -65,13 +60,6 @@ const priorityTone: Record<AdminTicketPriority, string> = {
   medium: styles.priorityMedium,
   high: styles.priorityHigh,
   urgent: styles.priorityUrgent
-};
-
-const quickFilterCopy: Record<QueueQuickFilter, string> = {
-  all: "All tickets",
-  urgent: "Urgent first",
-  needs_response: "Needs response",
-  with_attachments: "Has attachments"
 };
 
 function countByStatus(tickets: AdminTicket[]) {
@@ -93,26 +81,6 @@ function countByStatus(tickets: AdminTicket[]) {
 
 function countUrgentTickets(tickets: AdminTicket[]) {
   return tickets.filter((ticket) => ticket.priority === "urgent").length;
-}
-
-function roleLabel(role: AdminTicketQueueViewProps["currentUserRole"]) {
-  if (role === "technician") {
-    return "Technician queue";
-  }
-
-  return "Admin queue";
-}
-
-function heroNote(role: AdminTicketQueueViewProps["currentUserRole"], total: number) {
-  if (role === "technician") {
-    return `${total} tickets are waiting on your team. Keep the SLA moving and clear the blockers first.`;
-  }
-
-  return `${total} tickets are active across the organization. Triage by urgency, aging, and whether the queue is blocked.`;
-}
-
-function actionLabel(role: AdminTicketQueueViewProps["currentUserRole"]) {
-  return role === "technician" ? "Start next ticket" : "Assign from queue";
 }
 
 function normalize(value?: string | null) {
@@ -139,9 +107,26 @@ function matchesSearch(ticket: AdminTicket, query: string) {
 }
 
 export function AdminTicketQueueView({
+  locale,
   tickets = [],
   currentUserRole = "admin"
 }: AdminTicketQueueViewProps) {
+  const copy = getDictionary(locale).admin.tickets;
+  const commonCopy = getDictionary(locale).common;
+  const statusCopy: Record<AdminTicketStatus, string> = {
+    open: translateStatus(locale, "OPEN"),
+    assigned: translateStatus(locale, "ASSIGNED"),
+    in_progress: translateStatus(locale, "IN_PROGRESS"),
+    pending_user: translateStatus(locale, "PENDING_USER"),
+    resolved: translateStatus(locale, "RESOLVED"),
+    closed: translateStatus(locale, "CLOSED")
+  };
+  const quickFilterCopy: Record<QueueQuickFilter, string> = {
+    all: copy.quickFilters.all,
+    urgent: copy.quickFilters.urgent,
+    needs_response: copy.quickFilters.needs_response,
+    with_attachments: copy.quickFilters.with_attachments
+  };
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<AdminTicketStatus | "all">("all");
   const [quickFilter, setQuickFilter] = useState<QueueQuickFilter>("all");
@@ -161,10 +146,7 @@ export function AdminTicketQueueView({
         return false;
       }
 
-      if (
-        quickFilter === "needs_response" &&
-        ticket.responseLabel !== "Awaiting first response"
-      ) {
+      if (quickFilter === "needs_response" && !ticket.needsFirstResponse) {
         return false;
       }
 
@@ -203,17 +185,26 @@ export function AdminTicketQueueView({
 
       <header className={styles.hero}>
         <div className={styles.heroCopy}>
-          <p className={styles.kicker}>{roleLabel(currentUserRole)}</p>
-          <h2>Keep the queue moving without losing the paper trail.</h2>
-          <p className={styles.description}>{heroNote(currentUserRole, tickets.length)}</p>
+          <p className={styles.kicker}>
+            {currentUserRole === "technician" ? copy.roleTechnician : copy.roleAdmin}
+          </p>
+          <h2>{copy.title}</h2>
+          <p className={styles.description}>
+            {interpolate(
+              currentUserRole === "technician" ? copy.noteTechnician : copy.noteAdmin,
+              { count: tickets.length }
+            )}
+          </p>
 
           <div className={styles.heroActions}>
             <Link href="/tickets" className={styles.secondaryAction}>
-              Open requester view
+              {copy.openRequester}
             </Link>
             {nextTicket ? (
               <Link href={nextTicket.href} className={styles.primaryAction}>
-                {actionLabel(currentUserRole)}
+                {currentUserRole === "technician"
+                  ? copy.actionTechnician
+                  : copy.actionAdmin}
               </Link>
             ) : null}
           </div>
@@ -221,25 +212,25 @@ export function AdminTicketQueueView({
 
         <aside className={styles.heroRail}>
           <div className={styles.metricCard}>
-            <span className={styles.metricLabel}>Active work</span>
+            <span className={styles.metricLabel}>{copy.activeWork}</span>
             <strong>{openWork}</strong>
-            <p>Tickets currently being handled or waiting on a reply.</p>
+            <p>{copy.activeWorkHelp}</p>
           </div>
           <div className={styles.metricGrid}>
             <div>
-              <span>Urgent</span>
+              <span>{copy.urgent}</span>
               <strong>{urgentTickets}</strong>
             </div>
             <div>
-              <span>In progress</span>
+              <span>{copy.inProgress}</span>
               <strong>{counts.in_progress}</strong>
             </div>
             <div>
-              <span>Resolved</span>
+              <span>{copy.resolved}</span>
               <strong>{counts.resolved}</strong>
             </div>
             <div>
-              <span>Closed</span>
+              <span>{copy.closed}</span>
               <strong>{counts.closed}</strong>
             </div>
           </div>
@@ -248,36 +239,37 @@ export function AdminTicketQueueView({
 
       <section className={styles.sectionHead}>
         <div>
-          <p className={styles.sectionLabel}>Queue snapshot</p>
-          <h3>Prioritize the cases that are aging, blocked, or escalating.</h3>
+          <p className={styles.sectionLabel}>{copy.snapshotLabel}</p>
+          <h3>{copy.snapshotTitle}</h3>
           <p className={styles.resultMeta}>
-            Showing {filteredTickets.length} of {tickets.length} tickets.
-            {hasActiveFilters
-              ? ` ${filteredOpenWork} still count as active work in the current view.`
-              : ` ${openWork} are still active across the full queue.`}
+            {interpolate(copy.showingResults, {
+              shown: filteredTickets.length,
+              total: tickets.length,
+              active: hasActiveFilters ? filteredOpenWork : openWork
+            })}
           </p>
         </div>
 
         <div className={styles.controlPanel}>
           <label className={styles.searchField}>
-            <span>Search queue</span>
+            <span>{copy.searchLabel}</span>
             <input
               type="search"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Ticket, requester, department, assignee..."
+              placeholder={copy.searchPlaceholder}
             />
           </label>
 
           <label className={styles.selectField}>
-            <span>Status</span>
+            <span>{copy.statusLabel}</span>
             <select
               value={statusFilter}
               onChange={(event) =>
                 setStatusFilter(event.target.value as AdminTicketStatus | "all")
               }
             >
-              <option value="all">All statuses</option>
+              <option value="all">{commonCopy.allStatuses}</option>
               {Object.entries(statusCopy).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
@@ -309,7 +301,7 @@ export function AdminTicketQueueView({
               className={styles.resetButton}
               onClick={resetFilters}
             >
-              Clear filters
+              {commonCopy.clearFilters}
             </button>
           ) : null}
         </div>
@@ -318,17 +310,17 @@ export function AdminTicketQueueView({
       {filteredTickets.length === 0 ? (
         <article className={styles.emptyState}>
           <p className={styles.emptyLabel}>
-            {tickets.length === 0 ? "No tickets in the queue" : "No tickets match the current filters"}
+            {tickets.length === 0 ? copy.emptyNone : copy.emptyFiltered}
           </p>
           <h3>
             {tickets.length === 0
-              ? "Everything is clear for now."
-              : "Try widening the queue filters."}
+              ? copy.emptyNoneTitle
+              : copy.emptyFilteredTitle}
           </h3>
           <p>
             {tickets.length === 0
-              ? "When a request comes in, it will show up here with priority, status, attachments, and the latest action on record."
-              : "Search by requester, assignee, ticket number, or switch the quick filters to bring more of the queue back into view."}
+              ? copy.emptyNoneCopy
+              : copy.emptyFilteredCopy}
           </p>
         </article>
       ) : (
@@ -346,27 +338,27 @@ export function AdminTicketQueueView({
                     {statusCopy[ticket.status]}
                   </span>
                   <span className={`${styles.priorityBadge} ${priorityTone[ticket.priority]}`}>
-                    {ticket.priority}
+                    {translateStatus(locale, ticket.priority.toUpperCase())}
                   </span>
                 </div>
               </div>
 
               <div className={styles.ticketMeta}>
                 <div>
-                  <span>Requester</span>
+                  <span>{copy.requester}</span>
                   <strong>{ticket.requesterName}</strong>
                 </div>
                 <div>
-                  <span>Department</span>
-                  <strong>{ticket.department ?? "Not provided"}</strong>
+                  <span>{copy.department}</span>
+                  <strong>{ticket.department ?? commonCopy.notProvided}</strong>
                 </div>
                 <div>
-                  <span>Assignee</span>
-                  <strong>{ticket.assignee ?? "Unassigned"}</strong>
+                  <span>{copy.assignee}</span>
+                  <strong>{ticket.assignee ?? commonCopy.notAssigned}</strong>
                 </div>
                 <div>
-                  <span>Age</span>
-                  <strong>{ticket.ageLabel}</strong>
+                  <span>{copy.response}</span>
+                  <strong>{ticket.responseLabel ?? copy.awaitingFirstResponse}</strong>
                 </div>
               </div>
 
@@ -374,17 +366,18 @@ export function AdminTicketQueueView({
 
               <div className={styles.ticketFooter}>
                 <div className={styles.footerNotes}>
+                  <span>{ticket.ageLabel}</span>
                   <span>{ticket.updatedLabel}</span>
                   {ticket.responseLabel ? <span>{ticket.responseLabel}</span> : null}
-                  {ticket.hasAttachments ? <span>Attachment included</span> : null}
+                  {ticket.hasAttachments ? <span>{copy.quickFilters.with_attachments}</span> : null}
                 </div>
 
                 <div className={styles.footerActions}>
                   <Link href={ticket.href} className={styles.ghostAction}>
-                    Review
+                    {copy.openTicket}
                   </Link>
                   <Link href={ticket.href} className={styles.primaryMiniAction}>
-                    Update status
+                    {copy.actionAdmin}
                   </Link>
                 </div>
               </div>

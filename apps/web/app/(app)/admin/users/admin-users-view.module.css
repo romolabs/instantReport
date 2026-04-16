@@ -9,8 +9,8 @@
   padding: 24px;
   border-radius: 24px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
+  background: var(--panel);
+  box-shadow: var(--shadow);
 }
 
 .sectionHead {
@@ -48,7 +48,7 @@
   padding: 14px;
   border-radius: 18px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-muted);
 }
 
 .summaryCard span {
@@ -59,7 +59,7 @@
 }
 
 .summaryCard strong {
-  color: #fff8ed;
+  color: var(--text);
   font-size: 1.08rem;
 }
 
@@ -67,7 +67,7 @@
   padding: 20px;
   border-radius: 20px;
   border: 1px dashed var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface);
   color: var(--muted);
 }
 
@@ -84,7 +84,7 @@
 }
 
 .field span {
-  color: rgba(244, 241, 234, 0.8);
+  color: var(--muted-strong);
 }
 
 .field small,
@@ -101,7 +101,7 @@
   padding: 0 14px;
   border-radius: 14px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
   color: var(--text);
   font: inherit;
 }
@@ -120,7 +120,7 @@
   padding: 0 14px;
   border-radius: 14px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface);
   color: var(--text);
 }
 
@@ -150,8 +150,8 @@
 
 .actions button {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(160deg, #f0c56f, #d89431);
-  color: #1a1205;
+  background: var(--accent);
+  color: #fff;
 }
 
 .actions button:disabled {
@@ -164,7 +164,7 @@
   align-items: center;
   justify-content: center;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
 }
 
 .message {
@@ -193,7 +193,7 @@
   padding: 20px;
   border-radius: 22px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
 }
 
 .userHeader {
@@ -229,9 +229,9 @@
 }
 
 .badgeRole {
-  border: 1px solid rgba(240, 197, 111, 0.28);
-  color: #f6d28d;
-  background: rgba(240, 197, 111, 0.1);
+  border: 1px solid rgba(31, 111, 120, 0.16);
+  color: var(--accent);
+  background: rgba(31, 111, 120, 0.08);
 }
 
 .badgeActive {
@@ -258,11 +258,11 @@
   padding: 12px;
   border-radius: 16px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-muted);
 }
 
 .meta strong {
-  color: #fff8ed;
+  color: var(--text);
 }
 
 .cardFooter {

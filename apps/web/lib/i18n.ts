@@ -21,7 +21,12 @@ const dictionaries = {
       notSet: "Sin registrar",
       notProvided: "Sin dato",
       notAssigned: "Sin asignar",
-      openFile: "Abrir archivo"
+      openFile: "Abrir archivo",
+      active: "Activo",
+      inactive: "Inactivo",
+      never: "Nunca",
+      allStatuses: "Todos los estados",
+      clearFilters: "Limpiar filtros"
     },
     roles: {
       REQUESTER: "Solicitante",
@@ -67,6 +72,63 @@ const dictionaries = {
         resetWithToken: "¿Ya tienes un token de recuperación?",
         footerNote: "¿Solo quieres ver la app actual?",
         footerLink: "Entrar al portal"
+      },
+      forgotPassword: {
+        heroKicker: "Recuperación",
+        heroTitle: "Solicita un token de acceso sin salir del flujo interno.",
+        heroCopy:
+          "Por ahora este MVP devuelve un token temporal directamente, mientras el envío por correo sigue pendiente.",
+        highlights: ["Token temporal", "Sin registro público", "Acceso interno"],
+        cardEyebrow: "Recuperación",
+        cardTitle: "Solicitar token",
+        cardCopy:
+          "Escribe tu correo de la empresa. Si la cuenta existe, el sistema iniciará la recuperación y mostrará el token temporal en esta versión local.",
+        emailLabel: "Correo",
+        emailPlaceholder: "nombre@empresa.com",
+        submit: "Solicitar recuperación",
+        submitting: "Generando token...",
+        footerNote: "¿Ya lo recordaste?",
+        footerLink: "Volver a entrar",
+        statusLabel: "Estado",
+        defaultMessage:
+          "Si la cuenta existe, se generó un token de recuperación.",
+        tokenLabel: "Token",
+        expiresLabel: "Vence {date}",
+        continueLabel: "Continuar al cambio de contraseña",
+        localOnlyNote:
+          "Cuando el envío por correo esté listo, el token dejará de mostrarse en la respuesta y llegará por fuera.",
+        genericError: "No fue posible iniciar la recuperación.",
+        serverError: "No fue posible comunicarse con el servidor."
+      },
+      resetPassword: {
+        heroKicker: "Recuperación",
+        heroTitle: "Define una nueva contraseña y vuelve al portal.",
+        heroCopy:
+          "Pega el token de recuperación, elige una nueva contraseña y regresa al flujo normal de tickets.",
+        highlights: ["Mínimo 8 caracteres", "Validación de token", "Regreso rápido"],
+        cardEyebrow: "Nueva contraseña",
+        cardTitle: "Completar recuperación",
+        cardCopy:
+          "Esta pantalla usa el mismo endpoint de backend que usará el flujo por correo cuando esté listo.",
+        footerNote: "¿Necesitas un token primero?",
+        footerLink: "Solicítalo aquí",
+        tokenLabel: "Token",
+        tokenPlaceholder: "Pega el token del paso anterior",
+        passwordLabel: "Nueva contraseña",
+        passwordPlaceholder: "Mínimo 8 caracteres",
+        confirmLabel: "Confirmar contraseña",
+        confirmPlaceholder: "Repite la nueva contraseña",
+        hintEmpty: "Usa al menos 8 caracteres.",
+        hintShort: "La nueva contraseña debe tener al menos 8 caracteres.",
+        hintReady: "La nueva contraseña está lista para guardarse.",
+        mismatch: "Las contraseñas deben coincidir.",
+        successLabel: "Contraseña actualizada",
+        successDefault: "La contraseña se actualizó correctamente.",
+        successAction: "Volver a entrar",
+        submit: "Actualizar contraseña",
+        submitting: "Actualizando contraseña...",
+        genericError: "No fue posible actualizar la contraseña.",
+        serverError: "No fue posible comunicarse con el servidor."
       }
     },
     appShell: {
@@ -295,6 +357,240 @@ const dictionaries = {
           serverError: "No fue posible comunicarse con el servidor."
         }
       }
+    },
+    dashboard: {
+      kickerStaff: "Panel operativo",
+      kickerRequester: "Mi panel",
+      titleStaff:
+        "Revisa la carga, el ritmo de respuesta y lo que necesita atención primero.",
+      titleRequester:
+        "Da seguimiento a tus solicitudes sin perder el historial completo.",
+      copyStaff:
+        "Un resumen simple del flujo vivo para detectar carga, urgencia y categorías repetidas sin abrir cada caso.",
+      copyRequester:
+        "Aquí ves qué solicitudes siguen activas, cuáles esperan respuesta tuya y dónde hubo movimiento reciente.",
+      createTicket: "Nuevo ticket",
+      openQueue: "Abrir cola",
+      reviewTickets: "Ver mis tickets",
+      metricsStaff: {
+        activeWork: "Trabajo activo",
+        waitingOnUser: "En espera del usuario",
+        resolvedThisWeek: "Resueltos esta semana",
+        urgentTickets: "Urgentes"
+      },
+      metricsRequester: {
+        openMine: "Mis abiertos",
+        inProgress: "En proceso",
+        waitingOnMe: "Esperando mi respuesta",
+        resolvedThisWeek: "Resueltos esta semana"
+      },
+      workflowLabel: "Flujo",
+      workflowTitle: "Distribución por estado",
+      ticketsInView: "{count} tickets visibles",
+      signalLabel: "Señales",
+      signalTitle: "Indicadores clave",
+      averageFirstResponse: "Primera respuesta promedio",
+      ticketsWithEvidence: "Tickets con evidencia",
+      topCategory: "Categoría principal",
+      noDataYet: "Sin datos todavía",
+      trendsEmpty: "Las tendencias aparecerán cuando existan más tickets.",
+      recentLabel: "Actividad reciente",
+      recentTitleStaff: "Últimos movimientos de la cola",
+      recentTitleRequester: "Últimos cambios en mis tickets",
+      recentEmpty:
+        "Todavía no hay actividad. Crea el primer ticket para iniciar el historial.",
+      coverageLabel: "Cobertura",
+      coverageTitle: "Directorio",
+      activeUsers: "Usuarios activos",
+      staffSeats: "Personal operativo",
+      admins: "Administradores",
+      catalogLabel: "Catálogo",
+      catalogTitle: "Cobertura de categorías",
+      activeCategories: "Categorías activas",
+      inactiveCategories: "Categorías inactivas",
+      liveLeaders: "Categorías líderes",
+      notAvailable: "N/D"
+    },
+    admin: {
+      tickets: {
+        roleTechnician: "Cola técnica",
+        roleAdmin: "Cola administrativa",
+        title: "Mantén la cola en movimiento sin perder el historial.",
+        noteTechnician:
+          "{count} tickets esperan atención del equipo. Atiende primero lo bloqueado o urgente.",
+        noteAdmin:
+          "{count} tickets siguen activos en la organización. Ordena por urgencia, antigüedad y bloqueo.",
+        openRequester: "Abrir vista del solicitante",
+        actionTechnician: "Tomar siguiente ticket",
+        actionAdmin: "Asignar desde la cola",
+        activeWork: "Trabajo activo",
+        activeWorkHelp:
+          "Tickets en proceso o esperando respuesta dentro de la cola visible.",
+        urgent: "Urgentes",
+        inProgress: "En proceso",
+        resolved: "Resueltos",
+        closed: "Cerrados",
+        snapshotLabel: "Vista de cola",
+        snapshotTitle:
+          "Prioriza los casos que están envejeciendo, bloqueados o escalando.",
+        showingResults:
+          "Mostrando {shown} de {total} tickets. {active} siguen contando como trabajo activo.",
+        searchLabel: "Buscar en la cola",
+        searchPlaceholder: "Ticket, solicitante, departamento o responsable",
+        statusLabel: "Estado",
+        quickFilters: {
+          all: "Todos",
+          urgent: "Urgentes",
+          needs_response: "Sin primera respuesta",
+          with_attachments: "Con adjuntos"
+        },
+        emptyNone: "No hay tickets en la cola",
+        emptyNoneTitle: "Todo está al corriente por ahora.",
+        emptyNoneCopy:
+          "Cuando llegue una solicitud, aparecerá aquí con prioridad, estado y último movimiento.",
+        emptyFiltered: "Ningún ticket coincide con los filtros",
+        emptyFilteredTitle: "Amplía los filtros de la cola.",
+        emptyFilteredCopy:
+          "Busca por solicitante, responsable o número de ticket para volver a ver más resultados.",
+        requester: "Solicitante",
+        department: "Departamento",
+        assignee: "Responsable",
+        response: "Respuesta",
+        openTicket: "Abrir ticket",
+        awaitingFirstResponse: "Sin primera respuesta"
+      },
+      users: {
+        heroKicker: "Admin",
+        heroTitle: "Gestiona identidades internas sin romper el historial.",
+        heroCopy:
+          "Los usuarios controlan acceso, asignación y visibilidad. Mantén roles y estado activos al día.",
+        directorySize: "Tamaño del directorio",
+        directorySizeHelp:
+          "Todas las cuentas internas gestionadas por el sistema.",
+        activeUsers: "Usuarios activos",
+        staffRoles: "Roles operativos",
+        createLabel: "Crear cuenta",
+        createTitle: "Dar de alta sin salir del panel",
+        createHelp:
+          "Los nuevos usuarios se crean en el mismo directorio que usa el flujo de tickets.",
+        fields: {
+          fullName: "Nombre completo",
+          email: "Correo",
+          password: "Contraseña",
+          department: "Departamento",
+          role: "Rol"
+        },
+        placeholders: {
+          fullName: "Ava Johnson",
+          email: "ava@company.com",
+          password: "Mínimo 8 caracteres",
+          department: "Finanzas, Soporte u Operaciones"
+        },
+        accessNoteTitle: "Nota de acceso",
+        accessNote:
+          "Los solicitantes crean tickets. Técnicos y administradores pueden atender y asignar.",
+        createAction: "Crear usuario",
+        creatingAction: "Creando usuario...",
+        directoryLabel: "Directorio",
+        directoryTitle:
+          "Mantén nombres, roles y estado alineados con el backend.",
+        admins: "Administradores",
+        technicians: "Técnicos",
+        empty: "No hay usuarios todavía. Crea la primera cuenta arriba.",
+        department: "Departamento",
+        lastLogin: "Último acceso",
+        updated: "Actualizado",
+        activeAccount: "Cuenta activa",
+        cardHelp:
+          "Las contraseñas se administran desde el alta. Los cambios de estado y rol actualizan el mismo registro del backend.",
+        saveAction: "Guardar cambios",
+        savingAction: "Guardando...",
+        requiredError:
+          "Nombre completo, correo y contraseña son obligatorios.",
+        updateNameError: "El nombre no puede estar vacío.",
+        createError: "No fue posible crear el usuario.",
+        createServerError: "No fue posible comunicarse con el servidor.",
+        updateError: "No fue posible actualizar el usuario.",
+        updateServerError: "No fue posible comunicarse con el servidor.",
+        createSuccess: "Se creó {name}.",
+        updateSuccess: "Se guardaron los cambios de {name}."
+      },
+      categories: {
+        heroKicker: "Admin",
+        heroTitle: "Mantén el catálogo limpio y listo para captura.",
+        heroCopy:
+          "Las categorías afectan ruteo, reportes y calidad de captura. Mantén la lista simple y clara.",
+        totalCategories: "Categorías totales",
+        activeCategories: "Categorías activas",
+        inactiveCategories: "Categorías inactivas",
+        libraryLabel: "Biblioteca",
+        libraryTitle: "Categorías disponibles",
+        libraryCopy:
+          "Edita el catálogo aquí y deja que el formulario de tickets herede los cambios.",
+        createLabel: "Crear categoría",
+        createTitle: "Nueva etiqueta",
+        createCopy:
+          "Usa nombres breves y fáciles de entender para quien reporta.",
+        editLabel: "Editar categoría",
+        editTitle: "Categoría seleccionada",
+        editCopy:
+          "Actualiza la entrada actual o retírala sin borrar tickets históricos.",
+        fields: {
+          name: "Nombre",
+          description: "Descripción",
+          editing: "Editando",
+          status: "Estado"
+        },
+        placeholders: {
+          name: "Ejemplo: Acceso a software",
+          description: "Texto corto de ayuda para el formulario."
+        },
+        createAction: "Crear categoría",
+        creatingAction: "Creando...",
+        saveAction: "Guardar cambios",
+        savingAction: "Guardando...",
+        optionalDescription:
+          "Opcional. Déjala vacía si el nombre ya es suficientemente claro.",
+        requesterDescription:
+          "El solicitante verá este texto cuando la categoría esté disponible.",
+        keepAvailable: "Mantener disponible en creación de tickets",
+        emptyLibraryTitle: "No hay categorías todavía",
+        emptyLibraryCopy:
+          "Usa el formulario para agregar la primera categoría.",
+        emptySelectedTitle: "Selecciona una categoría",
+        emptySelectedCopy: "Haz clic en Editar para cargarla aquí.",
+        activeBadge: "Visible en captura",
+        inactiveBadge: "Oculta en captura",
+        noDescription: "Sin descripción.",
+        editAction: "Editar",
+        selectedAction: "Seleccionada",
+        createError: "No fue posible crear la categoría.",
+        createServerError: "No fue posible comunicarse con el servidor.",
+        updateError: "No fue posible actualizar la categoría.",
+        updateServerError: "No fue posible comunicarse con el servidor.",
+        createSuccess: "Se creó {name}.",
+        updateSuccess: "Se actualizó {name}.",
+        createdAt: "Creada {date}",
+        updatedAt: "Actualizada {date}"
+      }
+    },
+    routeState: {
+      appErrorKicker: "Algo falló",
+      appErrorTitle: "El espacio de trabajo encontró un error inesperado.",
+      appErrorFallback:
+        "Intenta de nuevo. Si sigue ocurriendo, vuelve a la cola y abre el registro otra vez.",
+      authErrorKicker: "Error de acceso",
+      authErrorTitle: "No se pudo completar la autenticación.",
+      authErrorFallback:
+        "Intenta de nuevo o vuelve al inicio de sesión para reiniciar el flujo.",
+      notFoundKicker: "No encontrado",
+      notFoundTitle: "Ese registro no está disponible en el espacio actual.",
+      notFoundCopy:
+        "Puede ser un número inválido, un enlace viejo o un ticket no visible para tu rol actual.",
+      tryAgain: "Intentar de nuevo",
+      backToTickets: "Volver a tickets",
+      backToSignIn: "Volver a entrar",
+      openQueue: "Abrir cola"
     }
   },
   en: {
@@ -308,7 +604,12 @@ const dictionaries = {
       notSet: "Not set",
       notProvided: "Not provided",
       notAssigned: "Unassigned",
-      openFile: "Open file"
+      openFile: "Open file",
+      active: "Active",
+      inactive: "Inactive",
+      never: "Never",
+      allStatuses: "All statuses",
+      clearFilters: "Clear filters"
     },
     roles: {
       REQUESTER: "Requester",
@@ -354,6 +655,63 @@ const dictionaries = {
         resetWithToken: "Already have a reset token?",
         footerNote: "Just want to see the current app?",
         footerLink: "Enter the portal"
+      },
+      forgotPassword: {
+        heroKicker: "Recovery",
+        heroTitle: "Request a reset token without leaving the internal flow.",
+        heroCopy:
+          "For now this MVP returns a temporary token directly while email delivery is still pending.",
+        highlights: ["Temporary token", "No public signup", "Internal access"],
+        cardEyebrow: "Password recovery",
+        cardTitle: "Request a reset token",
+        cardCopy:
+          "Enter your company email. If the account exists, the app will start recovery and show the temporary token in this local version.",
+        emailLabel: "Email",
+        emailPlaceholder: "name@company.com",
+        submit: "Request reset",
+        submitting: "Generating token...",
+        footerNote: "Remembered it?",
+        footerLink: "Back to sign in",
+        statusLabel: "Recovery status",
+        defaultMessage:
+          "If the account exists, a password reset token was generated.",
+        tokenLabel: "Reset token",
+        expiresLabel: "Expires {date}",
+        continueLabel: "Continue to reset password",
+        localOnlyNote:
+          "Once email delivery is wired, the token will stop appearing in the response and arrive out of band.",
+        genericError: "Unable to start password recovery.",
+        serverError: "Unable to reach the server right now."
+      },
+      resetPassword: {
+        heroKicker: "Recovery",
+        heroTitle: "Set a new password and get back into the portal.",
+        heroCopy:
+          "Paste the recovery token, choose a new password, and return to the normal ticket workflow.",
+        highlights: ["Minimum 8 characters", "Token validation", "Fast return"],
+        cardEyebrow: "Reset password",
+        cardTitle: "Finish the recovery flow",
+        cardCopy:
+          "This screen uses the same backend endpoint that the future email flow will keep using.",
+        footerNote: "Need a token first?",
+        footerLink: "Request one here",
+        tokenLabel: "Reset token",
+        tokenPlaceholder: "Paste the token from the previous step",
+        passwordLabel: "New password",
+        passwordPlaceholder: "At least 8 characters",
+        confirmLabel: "Confirm password",
+        confirmPlaceholder: "Repeat the new password",
+        hintEmpty: "Use at least 8 characters.",
+        hintShort: "The new password must be at least 8 characters.",
+        hintReady: "The new password is ready to submit.",
+        mismatch: "Passwords must match.",
+        successLabel: "Password updated",
+        successDefault: "Password updated successfully.",
+        successAction: "Return to sign in",
+        submit: "Reset password",
+        submitting: "Updating password...",
+        genericError: "Unable to reset the password.",
+        serverError: "Unable to reach the server right now."
       }
     },
     appShell: {
@@ -581,6 +939,239 @@ const dictionaries = {
           serverError: "Unable to reach the server right now."
         }
       }
+    },
+    dashboard: {
+      kickerStaff: "Operations dashboard",
+      kickerRequester: "My dashboard",
+      titleStaff:
+        "Review queue pressure, response pace, and what needs attention first.",
+      titleRequester:
+        "Track your requests without losing the full support history.",
+      copyStaff:
+        "A simpler snapshot of the live flow so the team can spot load, urgency, and repeated categories without opening every case.",
+      copyRequester:
+        "See which requests are active, which are waiting on you, and where recent movement landed.",
+      createTicket: "Create ticket",
+      openQueue: "Open queue",
+      reviewTickets: "Review my tickets",
+      metricsStaff: {
+        activeWork: "Active work",
+        waitingOnUser: "Waiting on user",
+        resolvedThisWeek: "Resolved this week",
+        urgentTickets: "Urgent tickets"
+      },
+      metricsRequester: {
+        openMine: "My open tickets",
+        inProgress: "In progress",
+        waitingOnMe: "Waiting on me",
+        resolvedThisWeek: "Resolved this week"
+      },
+      workflowLabel: "Workflow",
+      workflowTitle: "Status breakdown",
+      ticketsInView: "{count} tickets in view",
+      signalLabel: "Signals",
+      signalTitle: "Operational highlights",
+      averageFirstResponse: "Average first response",
+      ticketsWithEvidence: "Tickets with evidence",
+      topCategory: "Top category",
+      noDataYet: "No data yet",
+      trendsEmpty: "Category trends will appear once more tickets exist.",
+      recentLabel: "Recent activity",
+      recentTitleStaff: "Latest queue movement",
+      recentTitleRequester: "Latest changes to my tickets",
+      recentEmpty:
+        "No ticket activity yet. Create the first ticket to start the record.",
+      coverageLabel: "Coverage",
+      coverageTitle: "User directory",
+      activeUsers: "Active users",
+      staffSeats: "Staff seats",
+      admins: "Admins",
+      catalogLabel: "Catalog",
+      catalogTitle: "Category coverage",
+      activeCategories: "Active categories",
+      inactiveCategories: "Inactive categories",
+      liveLeaders: "Live leaders",
+      notAvailable: "N/A"
+    },
+    admin: {
+      tickets: {
+        roleTechnician: "Technician queue",
+        roleAdmin: "Admin queue",
+        title: "Keep the queue moving without losing the paper trail.",
+        noteTechnician:
+          "{count} tickets are waiting on the team. Start with what is blocked or urgent.",
+        noteAdmin:
+          "{count} tickets remain active across the organization. Sort by urgency, age, and blockers.",
+        openRequester: "Open requester view",
+        actionTechnician: "Start next ticket",
+        actionAdmin: "Assign from queue",
+        activeWork: "Active work",
+        activeWorkHelp:
+          "Tickets currently in progress or waiting for a reply in the visible queue.",
+        urgent: "Urgent",
+        inProgress: "In progress",
+        resolved: "Resolved",
+        closed: "Closed",
+        snapshotLabel: "Queue snapshot",
+        snapshotTitle:
+          "Prioritize the cases that are aging, blocked, or escalating.",
+        showingResults:
+          "Showing {shown} of {total} tickets. {active} still count as active work.",
+        searchLabel: "Search queue",
+        searchPlaceholder: "Ticket, requester, department, or assignee",
+        statusLabel: "Status",
+        quickFilters: {
+          all: "All",
+          urgent: "Urgent",
+          needs_response: "Needs response",
+          with_attachments: "Has attachments"
+        },
+        emptyNone: "No tickets in the queue",
+        emptyNoneTitle: "Everything is clear for now.",
+        emptyNoneCopy:
+          "When a request comes in, it will appear here with priority, status, and latest movement.",
+        emptyFiltered: "No tickets match the current filters",
+        emptyFilteredTitle: "Try widening the queue filters.",
+        emptyFilteredCopy:
+          "Search by requester, assignee, or ticket number to bring more results back.",
+        requester: "Requester",
+        department: "Department",
+        assignee: "Assignee",
+        response: "Response",
+        openTicket: "Open ticket",
+        awaitingFirstResponse: "Awaiting first response"
+      },
+      users: {
+        heroKicker: "Admin",
+        heroTitle: "Manage internal identities without breaking the audit trail.",
+        heroCopy:
+          "Users control access, assignment, and visibility. Keep roles and active status current.",
+        directorySize: "Directory size",
+        directorySizeHelp: "All internal accounts currently managed by the system.",
+        activeUsers: "Active users",
+        staffRoles: "Staff roles",
+        createLabel: "Create account",
+        createTitle: "Provision identities without leaving the panel",
+        createHelp:
+          "New users are created in the same directory the ticket workflow reads from.",
+        fields: {
+          fullName: "Full name",
+          email: "Email",
+          password: "Password",
+          department: "Department",
+          role: "Role"
+        },
+        placeholders: {
+          fullName: "Ava Johnson",
+          email: "ava@company.com",
+          password: "Minimum 8 characters",
+          department: "Finance, Support, or Operations"
+        },
+        accessNoteTitle: "Access note",
+        accessNote:
+          "Requesters create tickets. Technicians and admins can work and assign them.",
+        createAction: "Create user",
+        creatingAction: "Creating user...",
+        directoryLabel: "Directory",
+        directoryTitle:
+          "Keep names, roles, and active flags aligned with the backend.",
+        admins: "Admins",
+        technicians: "Technicians",
+        empty: "No users exist yet. Create the first account above.",
+        department: "Department",
+        lastLogin: "Last login",
+        updated: "Updated",
+        activeAccount: "Active account",
+        cardHelp:
+          "Passwords are managed through the create flow. Status and role changes update the same backend record used by ticket assignment.",
+        saveAction: "Save changes",
+        savingAction: "Saving...",
+        requiredError:
+          "Full name, email, and password are required.",
+        updateNameError: "Full name cannot be empty.",
+        createError: "Unable to create the user.",
+        createServerError: "Unable to reach the server right now.",
+        updateError: "Unable to update user.",
+        updateServerError: "Unable to reach the server right now.",
+        createSuccess: "Created {name}.",
+        updateSuccess: "Saved changes for {name}."
+      },
+      categories: {
+        heroKicker: "Admin",
+        heroTitle: "Keep the category catalog clean and ready for intake.",
+        heroCopy:
+          "Categories affect routing, reporting, and intake quality. Keep the list simple and clear.",
+        totalCategories: "Total categories",
+        activeCategories: "Active categories",
+        inactiveCategories: "Inactive categories",
+        libraryLabel: "Library",
+        libraryTitle: "Available categories",
+        libraryCopy:
+          "Edit the catalog here and let the ticket form inherit the changes.",
+        createLabel: "Create category",
+        createTitle: "New intake label",
+        createCopy:
+          "Use short, descriptive names that are easy for requesters to understand.",
+        editLabel: "Edit category",
+        editTitle: "Selected category",
+        editCopy:
+          "Update the current entry or retire it without deleting historical tickets.",
+        fields: {
+          name: "Name",
+          description: "Description",
+          editing: "Editing",
+          status: "Status"
+        },
+        placeholders: {
+          name: "Example: Software access",
+          description: "Short helper text for the ticket form."
+        },
+        createAction: "Create category",
+        creatingAction: "Creating...",
+        saveAction: "Save changes",
+        savingAction: "Saving...",
+        optionalDescription:
+          "Optional. Leave blank if the name is already clear enough.",
+        requesterDescription:
+          "Requesters will see this text wherever the category is offered.",
+        keepAvailable: "Keep category available in ticket creation",
+        emptyLibraryTitle: "No categories yet",
+        emptyLibraryCopy:
+          "Use the form to add the first request category.",
+        emptySelectedTitle: "Select a category",
+        emptySelectedCopy: "Click Edit on any category to load it here.",
+        activeBadge: "Visible in intake",
+        inactiveBadge: "Hidden from intake",
+        noDescription: "No description provided.",
+        editAction: "Edit",
+        selectedAction: "Selected",
+        createError: "Unable to create category.",
+        createServerError: "Unable to reach the server right now.",
+        updateError: "Unable to update category.",
+        updateServerError: "Unable to reach the server right now.",
+        createSuccess: "Created {name}.",
+        updateSuccess: "Updated {name}.",
+        createdAt: "Created {date}",
+        updatedAt: "Updated {date}"
+      }
+    },
+    routeState: {
+      appErrorKicker: "Something broke",
+      appErrorTitle: "The workspace hit an unexpected error.",
+      appErrorFallback:
+        "Try again. If it keeps happening, go back to the queue and reopen the record.",
+      authErrorKicker: "Access error",
+      authErrorTitle: "The authentication flow could not finish.",
+      authErrorFallback:
+        "Try again, or return to sign in and restart the flow.",
+      notFoundKicker: "Not found",
+      notFoundTitle: "That record is not available in the current workspace.",
+      notFoundCopy:
+        "It may be an invalid number, an outdated link, or a ticket not visible from your current role.",
+      tryAgain: "Try again",
+      backToTickets: "Back to tickets",
+      backToSignIn: "Back to sign in",
+      openQueue: "Open queue"
     }
   }
 } as const;
@@ -589,6 +1180,18 @@ export type AppDictionary = (typeof dictionaries)[Locale];
 
 export function isSupportedLocale(value?: string | null): value is Locale {
   return supportedLocales.includes(value as Locale);
+}
+
+export function getClientLocale(): Locale {
+  if (typeof document === "undefined") {
+    return "es";
+  }
+
+  const match = document.cookie.match(
+    new RegExp(`(?:^|; )${LOCALE_COOKIE_NAME}=([^;]+)`)
+  );
+  const cookieLocale = match ? decodeURIComponent(match[1]) : undefined;
+  return isSupportedLocale(cookieLocale) ? cookieLocale : "es";
 }
 
 export function getDictionary(locale: Locale): AppDictionary {

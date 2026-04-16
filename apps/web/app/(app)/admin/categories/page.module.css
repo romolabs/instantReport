@@ -2,33 +2,11 @@
   position: relative;
   display: grid;
   gap: 24px;
-  padding: 8px 0 28px;
-  isolation: isolate;
 }
 
 .glow,
 .glowSecondary {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(30px);
-  opacity: 0.45;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.glow {
-  inset: -18px auto auto -34px;
-  width: 240px;
-  height: 240px;
-  background: rgba(240, 197, 111, 0.16);
-}
-
-.glowSecondary {
-  right: -40px;
-  top: 88px;
-  width: 320px;
-  height: 320px;
-  background: rgba(124, 98, 255, 0.12);
+  display: none;
 }
 
 .hero {
@@ -38,18 +16,15 @@
   padding: 24px;
   border-radius: 28px;
   border: 1px solid var(--line);
-  background:
-    linear-gradient(160deg, rgba(20, 17, 11, 0.98), rgba(29, 22, 14, 0.92)),
-    radial-gradient(circle at top left, rgba(240, 197, 111, 0.16), transparent 38%),
-    radial-gradient(circle at bottom right, rgba(137, 105, 255, 0.14), transparent 40%);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  background: var(--panel);
+  box-shadow: var(--shadow);
 }
 
 .heroCopy h1 {
   margin: 10px 0 0;
-  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(2.2rem, 4vw, 4rem);
-  line-height: 0.98;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
 }
 
 .kicker {
@@ -78,7 +53,7 @@
   padding: 20px;
   border-radius: 24px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
 }
 
 .metricCard span {
@@ -89,8 +64,7 @@
 }
 
 .metricCard strong {
-  color: #fff8ed;
-  font-family: var(--font-display), Georgia, serif;
+  color: var(--text);
   font-size: 2.2rem;
   line-height: 1;
 }

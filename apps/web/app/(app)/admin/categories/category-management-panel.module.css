@@ -11,8 +11,8 @@
   padding: 24px;
   border-radius: 24px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
+  background: var(--panel);
+  box-shadow: var(--shadow);
 }
 
 .panelColumn {
@@ -88,7 +88,7 @@
   padding: 18px;
   border-radius: 22px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
 }
 
 .categoryCardSelected {
@@ -116,14 +116,14 @@
 
 .secondaryAction {
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
   color: var(--text);
 }
 
 .primaryAction {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(160deg, #f0c56f, #d89431);
-  color: #1a1205;
+  background: var(--accent);
+  color: #fff;
 }
 
 .primaryAction:disabled,
@@ -181,7 +181,7 @@
   width: 100%;
   border-radius: 14px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
   color: var(--text);
   font: inherit;
   padding: 12px 14px;
@@ -204,7 +204,7 @@
   padding: 0 14px;
   border-radius: 14px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface);
 }
 
 .checkboxRow input {
@@ -217,7 +217,7 @@
   padding: 14px;
   border-radius: 18px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-muted);
 }
 
 .selectedSummary span {
@@ -229,14 +229,14 @@
 }
 
 .selectedSummary strong {
-  color: #fff8ed;
+  color: var(--text);
 }
 
 .emptyState {
   padding: 18px;
   border-radius: 20px;
   border: 1px dashed var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface);
 }
 
 @media (max-width: 1040px) {

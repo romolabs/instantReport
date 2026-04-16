@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { getClientLocale, getDictionary } from "@/lib/i18n";
+
 import styles from "../route-state.module.css";
 
 export default function AppError({
@@ -11,20 +13,22 @@ export default function AppError({
   error: Error & { digest?: string };
   reset: () => void;
 }>) {
+  const copy = getDictionary(getClientLocale()).routeState;
+
   return (
     <section className={styles.appPanel}>
-      <p className={styles.kicker}>Something broke</p>
-      <h1 className={styles.headline}>The ticket workspace hit an unexpected error.</h1>
+      <p className={styles.kicker}>{copy.appErrorKicker}</p>
+      <h1 className={styles.headline}>{copy.appErrorTitle}</h1>
       <p className={styles.copy}>
-        {error.message || "Try the request again. If it keeps happening, return to the queue and reopen the record from there."}
+        {error.message || copy.appErrorFallback}
       </p>
 
       <div className={styles.actions}>
         <button type="button" onClick={reset} className={styles.primaryAction}>
-          Try again
+          {copy.tryAgain}
         </button>
         <Link href="/tickets" className={styles.secondaryAction}>
-          Back to tickets
+          {copy.backToTickets}
         </Link>
       </div>
     </section>

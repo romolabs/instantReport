@@ -8,27 +8,7 @@
 
 .glow,
 .glowSecondary {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(30px);
-  opacity: 0.45;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.glow {
-  inset: -18px auto auto -34px;
-  width: 240px;
-  height: 240px;
-  background: rgba(240, 197, 111, 0.16);
-}
-
-.glowSecondary {
-  right: -40px;
-  top: 88px;
-  width: 320px;
-  height: 320px;
-  background: rgba(124, 98, 255, 0.12);
+  display: none;
 }
 
 .hero {
@@ -38,11 +18,8 @@
   padding: 24px;
   border-radius: 28px;
   border: 1px solid var(--line);
-  background:
-    linear-gradient(160deg, rgba(20, 17, 11, 0.98), rgba(29, 22, 14, 0.92)),
-    radial-gradient(circle at top left, rgba(240, 197, 111, 0.16), transparent 38%),
-    radial-gradient(circle at bottom right, rgba(137, 105, 255, 0.14), transparent 40%);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  background: var(--panel);
+  box-shadow: var(--shadow);
 }
 
 .heroCopy h2,
@@ -50,7 +27,6 @@
 .emptyState h3,
 .ticketCard h4 {
   margin: 0;
-  font-family: var(--font-display), Georgia, serif;
 }
 
 .kicker,
@@ -68,7 +44,8 @@
 .heroCopy h2 {
   margin-top: 10px;
   font-size: clamp(2.2rem, 4vw, 4rem);
-  line-height: 0.98;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
 }
 
 .description {
@@ -103,7 +80,7 @@
 .secondaryAction,
 .ghostAction {
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
 }
 
 .secondaryAction,
@@ -125,9 +102,9 @@
 .primaryAction,
 .primaryMiniAction {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(160deg, #f0c56f, #d89431);
-  color: #1a1205;
-  box-shadow: 0 16px 36px rgba(216, 148, 49, 0.22);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: none;
 }
 
 .heroRail {
@@ -140,7 +117,7 @@
 .ticketCard,
 .emptyState {
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
 }
 
 .metricCard {
@@ -153,7 +130,7 @@
 .metricCard strong {
   font-size: 3rem;
   line-height: 1;
-  color: #fff8ed;
+  color: var(--text);
 }
 
 .metricCard p,
@@ -178,7 +155,7 @@
   gap: 6px;
   padding: 12px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-muted);
 }
 
 .metricGrid span,
@@ -190,7 +167,7 @@
 
 .metricGrid strong,
 .ticketMeta strong {
-  color: #fff8ed;
+  color: var(--text);
   font-size: 1.03rem;
 }
 
@@ -239,14 +216,14 @@
   min-height: 46px;
   border-radius: 14px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
   color: var(--text);
   padding: 0 14px;
   font: inherit;
 }
 
 .searchField input::placeholder {
-  color: rgba(244, 241, 234, 0.38);
+  color: var(--muted);
 }
 
 .filters {
@@ -269,14 +246,14 @@
 
 .filterChip,
 .resetButton {
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--muted);
+  background: var(--surface);
+  color: var(--muted-strong);
 }
 
 .filterActive {
-  background: linear-gradient(160deg, #f0c56f, #d89431);
+  background: var(--surface-muted);
   border-color: transparent;
-  color: #1a1205;
+  color: var(--text);
   font-weight: 700;
 }
 
@@ -293,7 +270,7 @@
 .emptyState {
   padding: 20px;
   border-radius: 24px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
+  box-shadow: none;
 }
 
 .ticketTop {
@@ -328,53 +305,53 @@
 }
 
 .statusOpen {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff4dc;
+  background: rgba(31, 41, 55, 0.06);
+  color: var(--text);
 }
 
 .statusAssigned {
-  background: rgba(93, 165, 255, 0.16);
-  color: #bfe0ff;
+  background: rgba(53, 104, 173, 0.12);
+  color: #244e86;
 }
 
 .statusActive {
-  background: rgba(240, 197, 111, 0.2);
-  color: #ffe3a8;
+  background: rgba(31, 111, 120, 0.12);
+  color: var(--accent);
 }
 
 .statusWaiting {
-  background: rgba(255, 153, 102, 0.18);
-  color: #ffd0b2;
+  background: rgba(191, 117, 51, 0.14);
+  color: #8b5727;
 }
 
 .statusResolved {
-  background: rgba(123, 227, 163, 0.18);
-  color: #c6ffd9;
+  background: rgba(77, 156, 118, 0.14);
+  color: #2f6f53;
 }
 
 .statusClosed {
-  background: rgba(148, 156, 179, 0.16);
-  color: #dde2ee;
+  background: rgba(107, 114, 128, 0.12);
+  color: #4b5563;
 }
 
 .priorityLow {
-  background: rgba(86, 178, 255, 0.14);
-  color: #cbe7ff;
+  background: rgba(107, 114, 128, 0.12);
+  color: #4b5563;
 }
 
 .priorityMedium {
-  background: rgba(240, 197, 111, 0.18);
-  color: #ffe6b7;
+  background: rgba(53, 104, 173, 0.12);
+  color: #244e86;
 }
 
 .priorityHigh {
-  background: rgba(255, 160, 90, 0.18);
-  color: #ffd2b0;
+  background: rgba(191, 117, 51, 0.14);
+  color: #8b5727;
 }
 
 .priorityUrgent {
-  background: rgba(255, 101, 101, 0.2);
-  color: #ffd0d0;
+  background: rgba(182, 72, 72, 0.12);
+  color: #9b3030;
 }
 
 .ticketMeta {
@@ -389,7 +366,7 @@
   gap: 6px;
   padding: 14px 15px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-muted);
 }
 
 .summary {
@@ -414,8 +391,8 @@
 .footerNotes span {
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
 }
 
 .footerActions {

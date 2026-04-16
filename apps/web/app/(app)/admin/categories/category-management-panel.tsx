@@ -3,11 +3,19 @@
 import { startTransition, useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
+import {
+  formatDateTime,
+  formatRelativeDate,
+  getDictionary,
+  interpolate,
+  type Locale
+} from "@/lib/i18n";
 import type { CategoryRecord } from "@/lib/category-types";
 
 import styles from "./category-management-panel.module.css";
 
 interface CategoryManagementPanelProps {
+  locale: Locale;
   categories: CategoryRecord[];
 }
 
@@ -30,34 +38,12 @@ function isCategoryResponse(
   return Boolean(payload && "id" in payload);
 }
 
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  }).format(new Date(value));
-}
-
-function formatRelativeTime(value: string) {
-  const diffMinutes = Math.floor((Date.now() - new Date(value).getTime()) / 60000);
-
-  if (diffMinutes < 1) {
-    return "Just now";
-  }
-
-  if (diffMinutes < 60) {
-    return `Updated ${diffMinutes}m ago`;
-  }
-
-  const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) {
-    return `Updated ${diffHours}h ago`;
-  }
-
-  const diffDays = Math.floor(diffHours / 24);
-  return `Updated ${diffDays}d ago`;
-}
-
-export function CategoryManagementPanel({ categories }: CategoryManagementPanelProps) {
+export function CategoryManagementPanel({
+  locale,
+  categories
+}: CategoryManagementPanelProps) {
+  const copy = getDictionary(locale).admin.categories;
+  const commonCopy = getDictionary(locale).common;
   const router = useRouter();
   const [selectedCategoryId, setSelectedCategoryId] = useState(categories[0]?.id ?? "");
   const [createName, setCreateName] = useState("");
@@ -137,22 +123,22 @@ export function CategoryManagementPanel({ categories }: CategoryManagementPanelP
         | null;
 
       if (!response.ok) {
-        setCreateError(getErrorMessage(payload) ?? "Unable to create category.");
+        setCreateError(getErrorMessage(payload) ?? copy.createError);
         return;
       }
 
       setCreateName("");
       setCreateDescription("");
       setSelectedCategoryId(isCategoryResponse(payload) ? payload.id : "");
-      setStatusMessage(
-        `Created ${isCategoryResponse(payload) ? payload.name : "category"}.`
-      );
+      setStatusMessage(interpolate(copy.createSuccess, {
+        name: isCategoryResponse(payload) ? payload.name : copy.fields.name
+      }));
 
       startTransition(() => {
         router.refresh();
       });
     } catch {
-      setCreateError("Unable to reach the server right now.");
+      setCreateError(copy.createServerError);
     } finally {
       setCreateBusy(false);
     }
@@ -191,7 +177,7 @@ export function CategoryManagementPanel({ categories }: CategoryManagementPanelP
         | null;
 
       if (!response.ok) {
-        setUpdateError(getErrorMessage(payload) ?? "Unable to update category.");
+        setUpdateError(getErrorMessage(payload) ?? copy.updateError);
         return;
       }
 
@@ -200,16 +186,16 @@ export function CategoryManagementPanel({ categories }: CategoryManagementPanelP
         setEditName(payload.name);
         setEditDescription(payload.description ?? "");
         setEditIsActive(payload.isActive);
-        setStatusMessage(`Updated ${payload.name}.`);
+        setStatusMessage(interpolate(copy.updateSuccess, { name: payload.name }));
       } else {
-        setStatusMessage(`Updated ${selectedCategory.name}.`);
+        setStatusMessage(interpolate(copy.updateSuccess, { name: selectedCategory.name }));
       }
 
       startTransition(() => {
         router.refresh();
       });
     } catch {
-      setUpdateError("Unable to reach the server right now.");
+      setUpdateError(copy.updateServerError);
     } finally {
       setUpdateBusy(false);
     }
@@ -220,13 +206,10 @@ export function CategoryManagementPanel({ categories }: CategoryManagementPanelP
       <section className={styles.library}>
         <div className={styles.sectionHead}>
           <div>
-            <p className={styles.sectionLabel}>Category library</p>
-            <h2>All request categories</h2>
+            <p className={styles.sectionLabel}>{copy.libraryLabel}</p>
+            <h2>{copy.libraryTitle}</h2>
           </div>
-          <p className={styles.sectionCopy}>
-            Edit the catalog here, then let ticket intake inherit the updated
-            taxonomy automatically.
-          </p>
+          <p className={styles.sectionCopy}>{copy.libraryCopy}</p>
         </div>
 
         {statusMessage ? <p className={styles.successMessage}>{statusMessage}</p> : null}
@@ -244,7 +227,7 @@ export function CategoryManagementPanel({ categories }: CategoryManagementPanelP
                   <div className={styles.categoryTop}>
                     <div>
                       <p className={styles.categoryStatus}>
-                        {category.isActive ? "Active" : "Inactive"}
+                        {category.isActive ? commonCopy.active : commonCopy.inactive}
                       </p>
                       <h3>{category.name}</h3>
                     </div>
@@ -254,24 +237,32 @@ export function CategoryManagementPanel({ categories }: CategoryManagementPanelP
                       className={styles.secondaryAction}
                       onClick={() => setSelectedCategoryId(category.id)}
                     >
-                      {isSelected ? "Selected" : "Edit"}
+                      {isSelected ? copy.selectedAction : copy.editAction}
                     </button>
                   </div>
 
                   <p className={styles.categoryDescription}>
-                    {category.description ?? "No description provided."}
+                    {category.description ?? copy.noDescription}
                   </p>
 
                   <div className={styles.badgeRow}>
                     <span className={category.isActive ? styles.activeBadge : styles.inactiveBadge}>
-                      {category.isActive ? "Visible in intake" : "Hidden from intake"}
+                      {category.isActive ? copy.activeBadge : copy.inactiveBadge}
                     </span>
-                    <span>{formatRelativeTime(category.updatedAt)}</span>
+                    <span>{formatRelativeDate(locale, category.updatedAt)}</span>
                   </div>
 
                   <div className={styles.categoryMeta}>
-                    <span>Created {formatDateTime(category.createdAt)}</span>
-                    <span>Updated {formatDateTime(category.updatedAt)}</span>
+                    <span>
+                      {interpolate(copy.createdAt, {
+                        date: formatDateTime(locale, category.createdAt)
+                      })}
+                    </span>
+                    <span>
+                      {interpolate(copy.updatedAt, {
+                        date: formatDateTime(locale, category.updatedAt)
+                      })}
+                    </span>
                   </div>
                 </article>
               );
@@ -279,8 +270,8 @@ export function CategoryManagementPanel({ categories }: CategoryManagementPanelP
           </div>
         ) : (
           <div className={styles.emptyState}>
-            <h3>No categories yet</h3>
-            <p>Use the create form to add the first request category.</p>
+            <h3>{copy.emptyLibraryTitle}</h3>
+            <p>{copy.emptyLibraryCopy}</p>
           </div>
         )}
       </section>
@@ -289,41 +280,39 @@ export function CategoryManagementPanel({ categories }: CategoryManagementPanelP
         <section className={styles.panel}>
           <div className={styles.sectionHead}>
             <div>
-              <p className={styles.sectionLabel}>Create category</p>
-              <h2>New intake label</h2>
+              <p className={styles.sectionLabel}>{copy.createLabel}</p>
+              <h2>{copy.createTitle}</h2>
             </div>
-            <p className={styles.sectionCopy}>
-              Keep names short, descriptive, and easy for requesters to choose.
-            </p>
+            <p className={styles.sectionCopy}>{copy.createCopy}</p>
           </div>
 
           <form className={styles.form} onSubmit={handleCreateSubmit}>
             <label className={styles.field}>
-              <span>Name</span>
+              <span>{copy.fields.name}</span>
               <input
                 type="text"
-                placeholder="Example: Software access"
+                placeholder={copy.placeholders.name}
                 value={createName}
                 onChange={(event) => setCreateName(event.target.value)}
               />
             </label>
 
             <label className={styles.field}>
-              <span>Description</span>
+              <span>{copy.fields.description}</span>
               <textarea
-                placeholder="Short helper text for the ticket form."
+                placeholder={copy.placeholders.description}
                 value={createDescription}
                 onChange={(event) => setCreateDescription(event.target.value)}
                 rows={4}
               />
-              <small>Optional. Leave blank if the name is already clear enough.</small>
+              <small>{copy.optionalDescription}</small>
             </label>
 
             {createError ? <p className={styles.errorMessage}>{createError}</p> : null}
 
             <div className={styles.actions}>
               <button type="submit" className={styles.primaryAction} disabled={createDisabled}>
-                {createBusy ? "Creating..." : "Create category"}
+                {createBusy ? copy.creatingAction : copy.createAction}
               </button>
             </div>
           </form>
@@ -332,29 +321,27 @@ export function CategoryManagementPanel({ categories }: CategoryManagementPanelP
         <section className={styles.panel}>
           <div className={styles.sectionHead}>
             <div>
-              <p className={styles.sectionLabel}>Edit category</p>
-              <h2>Selected category</h2>
+              <p className={styles.sectionLabel}>{copy.editLabel}</p>
+              <h2>{copy.editTitle}</h2>
             </div>
-            <p className={styles.sectionCopy}>
-              Update the current entry or retire it without deleting historical tickets.
-            </p>
+            <p className={styles.sectionCopy}>{copy.editCopy}</p>
           </div>
 
           {selectedCategory ? (
             <form className={styles.form} onSubmit={handleUpdateSubmit}>
               <div className={styles.selectedSummary}>
                 <div>
-                  <span>Editing</span>
+                  <span>{copy.fields.editing}</span>
                   <strong>{selectedCategory.name}</strong>
                 </div>
                 <div>
-                  <span>Status</span>
-                  <strong>{selectedCategory.isActive ? "Active" : "Inactive"}</strong>
+                  <span>{copy.fields.status}</span>
+                  <strong>{selectedCategory.isActive ? commonCopy.active : commonCopy.inactive}</strong>
                 </div>
               </div>
 
               <label className={styles.field}>
-                <span>Name</span>
+                <span>{copy.fields.name}</span>
                 <input
                   type="text"
                   value={editName}
@@ -363,15 +350,13 @@ export function CategoryManagementPanel({ categories }: CategoryManagementPanelP
               </label>
 
               <label className={styles.field}>
-                <span>Description</span>
+                <span>{copy.fields.description}</span>
                 <textarea
                   value={editDescription}
                   onChange={(event) => setEditDescription(event.target.value)}
                   rows={4}
                 />
-                <small>
-                  Requesters will see this text in intake wherever the category is offered.
-                </small>
+                <small>{copy.requesterDescription}</small>
               </label>
 
               <label className={styles.checkboxRow}>
@@ -380,21 +365,21 @@ export function CategoryManagementPanel({ categories }: CategoryManagementPanelP
                   checked={editIsActive}
                   onChange={(event) => setEditIsActive(event.target.checked)}
                 />
-                <span>Keep category available in ticket creation</span>
+                <span>{copy.keepAvailable}</span>
               </label>
 
               {updateError ? <p className={styles.errorMessage}>{updateError}</p> : null}
 
               <div className={styles.actions}>
                 <button type="submit" className={styles.primaryAction} disabled={updateDisabled}>
-                  {updateBusy ? "Saving..." : "Save changes"}
+                  {updateBusy ? copy.savingAction : copy.saveAction}
                 </button>
               </div>
             </form>
           ) : (
             <div className={styles.emptyState}>
-              <h3>Select a category</h3>
-              <p>Click Edit on any category to load it here.</p>
+              <h3>{copy.emptySelectedTitle}</h3>
+              <p>{copy.emptySelectedCopy}</p>
             </div>
           )}
         </section>

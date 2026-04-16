@@ -4,16 +4,23 @@ import { startTransition, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  USER_ROLE_LABELS,
   USER_ROLE_OPTIONS,
   type PublicUser,
   type CreateUserInput,
   type UpdateUserInput
 } from "@/lib/user-types";
+import {
+  formatDateTime,
+  getDictionary,
+  interpolate,
+  translateRole,
+  type Locale
+} from "@/lib/i18n";
 
 import styles from "./admin-users-view.module.css";
 
 interface AdminUsersViewProps {
+  locale: Locale;
   users: PublicUser[];
 }
 
@@ -32,14 +39,6 @@ const initialCreateState: CreateFormState = {
   department: "",
   role: "REQUESTER"
 };
-
-function formatDateTime(input: string | null) {
-  if (!input) {
-    return "Never";
-  }
-
-  return new Date(input).toLocaleString();
-}
 
 function roleBadgeClass(role: PublicUser["role"]) {
   return role === "REQUESTER"
@@ -60,7 +59,9 @@ function normalizeOptionalField(value: FormDataEntryValue | null) {
   return trimmed ? trimmed : undefined;
 }
 
-export function AdminUsersView({ users }: AdminUsersViewProps) {
+export function AdminUsersView({ locale, users }: AdminUsersViewProps) {
+  const copy = getDictionary(locale).admin.users;
+  const commonCopy = getDictionary(locale).common;
   const router = useRouter();
   const [createState, setCreateState] =
     useState<CreateFormState>(initialCreateState);
@@ -88,7 +89,7 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
     const password = createState.password.trim();
 
     if (!fullName || !email || !password) {
-      setCreateError("Full name, email, and password are required.");
+      setCreateError(copy.requiredError);
       return;
     }
 
@@ -118,20 +119,18 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
         | null;
 
       if (!response.ok) {
-        setCreateError(
-          responsePayload?.message ?? "Unable to create the user."
-        );
+        setCreateError(responsePayload?.message ?? copy.createError);
         return;
       }
 
       setCreateState(initialCreateState);
-      setCreateSuccess(`Created ${fullName}.`);
+      setCreateSuccess(interpolate(copy.createSuccess, { name: fullName }));
 
       startTransition(() => {
         router.refresh();
       });
     } catch {
-      setCreateError("Unable to reach the server right now.");
+      setCreateError(copy.createServerError);
     } finally {
       setIsCreating(false);
     }
@@ -151,7 +150,7 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
     const fullName = String(formData.get("fullName") ?? "").trim();
 
     if (!fullName) {
-      setSaveMessage("Full name cannot be empty.");
+      setSaveMessage(copy.updateNameError);
       return;
     }
 
@@ -179,17 +178,17 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
         | null;
 
       if (!response.ok) {
-        setSaveMessage(responsePayload?.message ?? "Unable to update user.");
+        setSaveMessage(responsePayload?.message ?? copy.updateError);
         return;
       }
 
-      setSaveMessage(`Saved changes for ${fullName}.`);
+      setSaveMessage(interpolate(copy.updateSuccess, { name: fullName }));
 
       startTransition(() => {
         router.refresh();
       });
     } catch {
-      setSaveMessage("Unable to reach the server right now.");
+      setSaveMessage(copy.updateServerError);
     } finally {
       setSavingUserId(null);
     }
@@ -200,22 +199,19 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
       <section className={styles.panel}>
         <div className={styles.sectionHead}>
           <div>
-            <p className={styles.sectionLabel}>Create account</p>
-            <h3>Provision identities without leaving the admin shell.</h3>
+            <p className={styles.sectionLabel}>{copy.createLabel}</p>
+            <h3>{copy.createTitle}</h3>
           </div>
-          <p className={styles.helper}>
-            New users are created through the same backend directory the ticket
-            workflow reads from.
-          </p>
+          <p className={styles.helper}>{copy.createHelp}</p>
         </div>
 
         <form className={styles.formGrid} onSubmit={handleCreateSubmit}>
           <label className={styles.field}>
-            <span>Full name</span>
+            <span>{copy.fields.fullName}</span>
             <input
               type="text"
               name="fullName"
-              placeholder="Ava Johnson"
+              placeholder={copy.placeholders.fullName}
               value={createState.fullName}
               onChange={(event) =>
                 setCreateState((current) => ({
@@ -227,11 +223,11 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
           </label>
 
           <label className={styles.field}>
-            <span>Email</span>
+            <span>{copy.fields.email}</span>
             <input
               type="email"
               name="email"
-              placeholder="ava@company.com"
+              placeholder={copy.placeholders.email}
               value={createState.email}
               onChange={(event) =>
                 setCreateState((current) => ({
@@ -243,11 +239,11 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
           </label>
 
           <label className={styles.field}>
-            <span>Password</span>
+            <span>{copy.fields.password}</span>
             <input
               type="password"
               name="password"
-              placeholder="Minimum 8 characters"
+              placeholder={copy.placeholders.password}
               value={createState.password}
               onChange={(event) =>
                 setCreateState((current) => ({
@@ -259,11 +255,11 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
           </label>
 
           <label className={styles.field}>
-            <span>Department</span>
+            <span>{copy.fields.department}</span>
             <input
               type="text"
               name="department"
-              placeholder="Finance, Support, or Operations"
+              placeholder={copy.placeholders.department}
               value={createState.department}
               onChange={(event) =>
                 setCreateState((current) => ({
@@ -275,7 +271,7 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
           </label>
 
           <label className={styles.field}>
-            <span>Role</span>
+            <span>{copy.fields.role}</span>
             <select
               name="role"
               value={createState.role}
@@ -288,23 +284,20 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
             >
               {USER_ROLE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {translateRole(locale, option.value)}
                 </option>
               ))}
             </select>
           </label>
 
           <div className={styles.field}>
-            <span>Access note</span>
-            <p className={styles.helper}>
-              Requesters can submit tickets. Technicians and admins can be
-              assigned and can manage queue actions.
-            </p>
+            <span>{copy.accessNoteTitle}</span>
+            <p className={styles.helper}>{copy.accessNote}</p>
           </div>
 
           <div className={styles.actions}>
             <button type="submit" disabled={isCreating}>
-              {isCreating ? "Creating user..." : "Create user"}
+              {isCreating ? copy.creatingAction : copy.createAction}
             </button>
           </div>
         </form>
@@ -320,30 +313,27 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
       <section className={styles.panel}>
         <div className={styles.sectionHead}>
           <div>
-            <p className={styles.sectionLabel}>Directory</p>
-            <h3>Keep names, roles, and activity flags aligned with the backend.</h3>
+            <p className={styles.sectionLabel}>{copy.directoryLabel}</p>
+            <h3>{copy.directoryTitle}</h3>
           </div>
           <div className={styles.summaryGrid}>
             <article className={styles.summaryCard}>
-              <span>Active accounts</span>
+              <span>{copy.activeUsers}</span>
               <strong>{activeCount}</strong>
             </article>
             <article className={styles.summaryCard}>
-              <span>Admins</span>
+              <span>{copy.admins}</span>
               <strong>{adminCount}</strong>
             </article>
             <article className={styles.summaryCard}>
-              <span>Technicians</span>
+              <span>{copy.technicians}</span>
               <strong>{technicianCount}</strong>
             </article>
           </div>
         </div>
 
         {users.length === 0 ? (
-          <article className={styles.emptyState}>
-            No users exist yet. Create the first account above to seed the
-            directory.
-          </article>
+          <article className={styles.emptyState}>{copy.empty}</article>
         ) : (
           <div className={styles.userList}>
             {users.map((user) => (
@@ -355,30 +345,32 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
                   </div>
                   <div className={styles.badgeStack}>
                     <span className={`${styles.badge} ${roleBadgeClass(user.role)}`}>
-                      {USER_ROLE_LABELS[user.role]}
+                      {translateRole(locale, user.role)}
                     </span>
                     <span
                       className={`${styles.badge} ${statusBadgeClass(
                         user.isActive
                       )}`}
                     >
-                      {user.isActive ? "Active" : "Inactive"}
+                      {user.isActive ? commonCopy.active : commonCopy.inactive}
                     </span>
                   </div>
                 </div>
 
                 <div className={styles.meta}>
                   <article>
-                    <span>Department</span>
-                    <strong>{user.department ?? "Not set"}</strong>
+                    <span>{copy.department}</span>
+                    <strong>{user.department ?? commonCopy.notSet}</strong>
                   </article>
                   <article>
-                    <span>Last login</span>
-                    <strong>{formatDateTime(user.lastLoginAt)}</strong>
+                    <span>{copy.lastLogin}</span>
+                    <strong>
+                      {user.lastLoginAt ? formatDateTime(locale, user.lastLoginAt) : commonCopy.never}
+                    </strong>
                   </article>
                   <article>
-                    <span>Updated</span>
-                    <strong>{formatDateTime(user.updatedAt)}</strong>
+                    <span>{copy.updated}</span>
+                    <strong>{formatDateTime(locale, user.updatedAt)}</strong>
                   </article>
                 </div>
 
@@ -388,7 +380,7 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
                   onSubmit={handleUpdateSubmit}
                 >
                   <label className={styles.field}>
-                    <span>Full name</span>
+                    <span>{copy.fields.fullName}</span>
                     <input
                       type="text"
                       name="fullName"
@@ -397,7 +389,7 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
                   </label>
 
                   <label className={styles.field}>
-                    <span>Department</span>
+                    <span>{copy.fields.department}</span>
                     <input
                       type="text"
                       name="department"
@@ -406,11 +398,11 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
                   </label>
 
                   <label className={styles.field}>
-                    <span>Role</span>
+                    <span>{copy.fields.role}</span>
                     <select name="role" defaultValue={user.role}>
                       {USER_ROLE_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
-                          {option.label}
+                          {translateRole(locale, option.value)}
                         </option>
                       ))}
                     </select>
@@ -422,20 +414,16 @@ export function AdminUsersView({ users }: AdminUsersViewProps) {
                       name="isActive"
                       defaultChecked={user.isActive}
                     />
-                    <span>Active account</span>
+                    <span>{copy.activeAccount}</span>
                   </label>
 
                   <div className={styles.cardFooter}>
-                    <p className={styles.helper}>
-                      Passwords are managed through the create flow. Status and
-                      role changes update the same backend user record used by
-                      ticket assignment.
-                    </p>
+                    <p className={styles.helper}>{copy.cardHelp}</p>
                     <div className={styles.actions}>
                       <button type="submit" disabled={savingUserId === user.id}>
                         {savingUserId === user.id
-                          ? "Saving..."
-                          : "Save changes"}
+                          ? copy.savingAction
+                          : copy.saveAction}
                       </button>
                     </div>
                   </div>

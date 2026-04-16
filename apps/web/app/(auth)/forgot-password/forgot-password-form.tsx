@@ -3,6 +3,13 @@
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
+import {
+  formatDateTime,
+  interpolate,
+  type AppDictionary,
+  type Locale
+} from "@/lib/i18n";
+
 import styles from "../login/login.module.css";
 
 interface ForgotPasswordPayload {
@@ -11,18 +18,15 @@ interface ForgotPasswordPayload {
   expiresAt?: string;
 }
 
-function formatExpiresAt(value?: string) {
-  if (!value) {
-    return null;
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  }).format(new Date(value));
+interface ForgotPasswordFormProps {
+  locale: Locale;
+  copy: AppDictionary["auth"]["forgotPassword"];
 }
 
-export function ForgotPasswordForm() {
+export function ForgotPasswordForm({
+  locale,
+  copy
+}: ForgotPasswordFormProps) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ForgotPasswordPayload | null>(null);
@@ -53,28 +57,30 @@ export function ForgotPasswordForm() {
         | null;
 
       if (!response.ok) {
-        setError(payload?.message ?? "Unable to start password recovery.");
+        setError(payload?.message ?? copy.genericError);
         return;
       }
 
-      setResult(payload ?? { message: "Reset request created." });
+      setResult(payload ?? { message: copy.defaultMessage });
     } catch {
-      setError("Unable to reach the server right now.");
+      setError(copy.serverError);
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  const expiresAtLabel = formatExpiresAt(result?.expiresAt);
+  const expiresAtLabel = result?.expiresAt
+    ? formatDateTime(locale, result.expiresAt)
+    : null;
 
   return (
     <>
       <form className={styles.form} onSubmit={handleSubmit}>
         <label>
-          <span>Email</span>
+          <span>{copy.emailLabel}</span>
           <input
             type="email"
-            placeholder="name@company.com"
+            placeholder={copy.emailPlaceholder}
             autoComplete="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -84,41 +90,39 @@ export function ForgotPasswordForm() {
         {error ? <p className={styles.errorMessage}>{error}</p> : null}
 
         <button type="submit" disabled={disabled}>
-          {isSubmitting ? "Generating token..." : "Request reset"}
+          {isSubmitting ? copy.submitting : copy.submit}
         </button>
       </form>
 
       {result ? (
         <div className={styles.recoveryCard}>
-          <p className={styles.recoveryLabel}>Recovery status</p>
+          <p className={styles.recoveryLabel}>{copy.statusLabel}</p>
           <p className={styles.recoveryMessage}>
-            {result.message ??
-              "If the account exists, a password reset token was generated."}
+            {result.message ?? copy.defaultMessage}
           </p>
 
           {result.resetToken ? (
             <>
               <div className={styles.tokenBlock}>
-                <span>Reset token</span>
+                <span>{copy.tokenLabel}</span>
                 <code>{result.resetToken}</code>
               </div>
 
               {expiresAtLabel ? (
-                <p className={styles.recoveryMeta}>Expires {expiresAtLabel}</p>
+                <p className={styles.recoveryMeta}>
+                  {interpolate(copy.expiresLabel, { date: expiresAtLabel })}
+                </p>
               ) : null}
 
               <Link
                 href={`/reset-password?token=${encodeURIComponent(result.resetToken)}`}
                 className={styles.secondaryLink}
               >
-                Continue to reset password
+                {copy.continueLabel}
               </Link>
             </>
           ) : (
-            <p className={styles.recoveryMeta}>
-              Once email delivery is wired, the token will leave the API
-              response and arrive out-of-band instead.
-            </p>
+            <p className={styles.recoveryMeta}>{copy.localOnlyNote}</p>
           )}
         </div>
       ) : null}

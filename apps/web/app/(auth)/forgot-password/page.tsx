@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getSessionToken } from "@/lib/backend";
+import { getDictionary } from "@/lib/i18n";
+import { getCurrentLocale } from "@/lib/i18n-server";
 
 import { ForgotPasswordForm } from "./forgot-password-form";
 import styles from "../login/login.module.css";
@@ -13,40 +15,38 @@ export default async function ForgotPasswordPage() {
     redirect("/tickets");
   }
 
+  const locale = await getCurrentLocale();
+  const copy = getDictionary(locale).auth.forgotPassword;
+
   return (
     <main className={styles.shell}>
       <section className={styles.hero}>
+        <div className={styles.heroTop}>
+          <p className={styles.kicker}>{copy.heroKicker}</p>
+        </div>
         <div className={styles.brandMark}>IR</div>
-        <p className={styles.kicker}>Recovery</p>
-        <h1>Get a reset token without losing the audit trail.</h1>
-        <p className={styles.copy}>
-          This flow keeps access recovery inside the same app-managed auth
-          system. For now, the backend returns a temporary raw token directly
-          while email delivery is still pending.
-        </p>
+        <h1>{copy.heroTitle}</h1>
+        <p className={styles.copy}>{copy.heroCopy}</p>
         <div className={styles.highlights}>
-          <span>Token-based reset</span>
-          <span>No public signup</span>
-          <span>Internal-only access</span>
+          {copy.highlights.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
         </div>
       </section>
 
       <section className={styles.card}>
         <div className={styles.cardHeader}>
-          <p className={styles.cardEyebrow}>Password recovery</p>
-          <h2>Request a reset token</h2>
-          <p>
-            Enter your company email. If the account exists, the app will start
-            a reset request and show the temporary token in this local-only MVP.
-          </p>
+          <p className={styles.cardEyebrow}>{copy.cardEyebrow}</p>
+          <h2>{copy.cardTitle}</h2>
+          <p>{copy.cardCopy}</p>
         </div>
 
-        <ForgotPasswordForm />
+        <ForgotPasswordForm locale={locale} copy={copy} />
 
         <p className={styles.footerNote}>
-          Remembered it?{" "}
+          {copy.footerNote}{" "}
           <Link href="/login" className={styles.footerLink}>
-            Back to sign in
+            {copy.footerLink}
           </Link>
         </p>
       </section>

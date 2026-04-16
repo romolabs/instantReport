@@ -1,23 +1,25 @@
 import Link from "next/link";
 
+import { getCurrentLocale } from "@/lib/i18n-server";
+import { getDictionary } from "@/lib/i18n";
+
 import styles from "../route-state.module.css";
 
-export default function AppNotFound() {
+export default async function AppNotFound() {
+  const copy = getDictionary(await getCurrentLocale()).routeState;
+
   return (
     <section className={styles.appPanel}>
-      <p className={styles.kicker}>Not found</p>
-      <h1 className={styles.headline}>That record is not in the current workspace.</h1>
-      <p className={styles.copy}>
-        The ticket may have an invalid number, an outdated link, or it may no
-        longer be visible from your current role.
-      </p>
+      <p className={styles.kicker}>{copy.notFoundKicker}</p>
+      <h1 className={styles.headline}>{copy.notFoundTitle}</h1>
+      <p className={styles.copy}>{copy.notFoundCopy}</p>
 
       <div className={styles.actions}>
         <Link href="/tickets" className={styles.primaryAction}>
-          Go to tickets
+          {copy.backToTickets}
         </Link>
         <Link href="/admin/tickets" className={styles.secondaryAction}>
-          Open staff queue
+          {copy.openQueue}
         </Link>
       </div>
     </section>

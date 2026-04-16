@@ -3,13 +3,20 @@
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
+import type { AppDictionary, Locale } from "@/lib/i18n";
+
 import styles from "../login/login.module.css";
 
 interface ResetPasswordFormProps {
+  locale: Locale;
+  copy: AppDictionary["auth"]["resetPassword"];
   initialToken: string;
 }
 
-export function ResetPasswordForm({ initialToken }: ResetPasswordFormProps) {
+export function ResetPasswordForm({
+  copy,
+  initialToken
+}: ResetPasswordFormProps) {
   const [token, setToken] = useState(initialToken);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -26,20 +33,20 @@ export function ResetPasswordForm({ initialToken }: ResetPasswordFormProps) {
 
   const mismatch =
     confirmPassword.length > 0 && password !== confirmPassword
-      ? "Passwords must match."
+      ? copy.mismatch
       : null;
 
   const passwordHint = useMemo(() => {
     if (!password && !confirmPassword) {
-      return "Use at least 8 characters.";
+      return copy.hintEmpty;
     }
 
     if (password.length < 8 || confirmPassword.length < 8) {
-      return "The new password must be at least 8 characters.";
+      return copy.hintShort;
     }
 
-    return mismatch ?? "The new password is ready to submit.";
-  }, [confirmPassword, mismatch, password]);
+    return mismatch ?? copy.hintReady;
+  }, [confirmPassword, copy.hintEmpty, copy.hintReady, copy.hintShort, mismatch, password]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -64,15 +71,15 @@ export function ResetPasswordForm({ initialToken }: ResetPasswordFormProps) {
         | null;
 
       if (!response.ok) {
-        setError(payload?.message ?? "Unable to reset the password.");
+        setError(payload?.message ?? copy.genericError);
         return;
       }
 
-      setSuccess(payload?.message ?? "Password updated successfully.");
+      setSuccess(payload?.message ?? copy.successDefault);
       setPassword("");
       setConfirmPassword("");
     } catch {
-      setError("Unable to reach the server right now.");
+      setError(copy.serverError);
     } finally {
       setIsSubmitting(false);
     }
@@ -82,20 +89,20 @@ export function ResetPasswordForm({ initialToken }: ResetPasswordFormProps) {
     <>
       <form className={styles.form} onSubmit={handleSubmit}>
         <label>
-          <span>Reset token</span>
+          <span>{copy.tokenLabel}</span>
           <input
             type="text"
-            placeholder="Paste the token from the recovery step"
+            placeholder={copy.tokenPlaceholder}
             value={token}
             onChange={(event) => setToken(event.target.value)}
           />
         </label>
 
         <label>
-          <span>New password</span>
+          <span>{copy.passwordLabel}</span>
           <input
             type="password"
-            placeholder="At least 8 characters"
+            placeholder={copy.passwordPlaceholder}
             autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
@@ -103,10 +110,10 @@ export function ResetPasswordForm({ initialToken }: ResetPasswordFormProps) {
         </label>
 
         <label>
-          <span>Confirm password</span>
+          <span>{copy.confirmLabel}</span>
           <input
             type="password"
-            placeholder="Repeat the new password"
+            placeholder={copy.confirmPlaceholder}
             autoComplete="new-password"
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
@@ -118,16 +125,16 @@ export function ResetPasswordForm({ initialToken }: ResetPasswordFormProps) {
         {error ? <p className={styles.errorMessage}>{error}</p> : null}
         {success ? (
           <div className={styles.recoveryCard}>
-            <p className={styles.recoveryLabel}>Password updated</p>
+            <p className={styles.recoveryLabel}>{copy.successLabel}</p>
             <p className={styles.recoveryMessage}>{success}</p>
             <Link href="/login" className={styles.secondaryLink}>
-              Return to sign in
+              {copy.successAction}
             </Link>
           </div>
         ) : null}
 
         <button type="submit" disabled={disabled}>
-          {isSubmitting ? "Updating password..." : "Reset password"}
+          {isSubmitting ? copy.submitting : copy.submit}
         </button>
       </form>
     </>

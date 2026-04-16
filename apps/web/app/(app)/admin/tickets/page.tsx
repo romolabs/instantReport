@@ -6,65 +6,46 @@ import {
 } from "./admin-ticket-queue-view";
 
 import { requireStaffUser } from "@/lib/auth";
+import { formatRelativeDate, getDictionary, interpolate } from "@/lib/i18n";
+import { getCurrentLocale } from "@/lib/i18n-server";
 import { type TicketListItem, getTickets } from "@/lib/tickets";
 
-function formatRelativeDate(input: string) {
-  const date = new Date(input);
-  const delta = Date.now() - date.getTime();
-  const minutes = Math.floor(delta / 60000);
-
-  if (minutes < 1) {
-    return "Just updated";
-  }
-
-  if (minutes < 60) {
-    return `Updated ${minutes}m ago`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return `Updated ${hours}h ago`;
-  }
-
-  const days = Math.floor(hours / 24);
-  return `Updated ${days}d ago`;
-}
-
-function formatAgeLabel(createdAt: string) {
+function formatAgeLabel(locale: Awaited<ReturnType<typeof getCurrentLocale>>, createdAt: string) {
   const created = new Date(createdAt);
   const delta = Date.now() - created.getTime();
   const minutes = Math.floor(delta / 60000);
 
   if (minutes < 60) {
-    return `${Math.max(minutes, 1)}m open`;
+    return formatRelativeDate(locale, createdAt);
   }
 
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
-    return `${hours}h open`;
+    return formatRelativeDate(locale, createdAt);
   }
 
-  const days = Math.floor(hours / 24);
-  return `${days}d open`;
+  return formatRelativeDate(locale, createdAt);
 }
 
-function formatResponseLabel(ticket: TicketListItem) {
+function formatResponseLabel(
+  locale: Awaited<ReturnType<typeof getCurrentLocale>>,
+  ticket: TicketListItem
+) {
+  const copy = getDictionary(locale).admin.tickets;
+
   if (ticket.closedAt) {
-    return `Closed ${formatRelativeDate(ticket.closedAt).replace("Updated ", "")}`;
+    return `${copy.closed} ${formatRelativeDate(locale, ticket.closedAt)}`;
   }
 
   if (ticket.resolvedAt) {
-    return `Resolved ${formatRelativeDate(ticket.resolvedAt).replace("Updated ", "")}`;
+    return `${copy.resolved} ${formatRelativeDate(locale, ticket.resolvedAt)}`;
   }
 
   if (ticket.firstResponseAt) {
-    return `First response ${formatRelativeDate(ticket.firstResponseAt).replace(
-      "Updated ",
-      ""
-    )}`;
+    return `${copy.response} ${formatRelativeDate(locale, ticket.firstResponseAt)}`;
   }
 
-  return "Awaiting first response";
+  return copy.awaitingFirstResponse;
 }
 
 function comparePriority(
@@ -94,7 +75,10 @@ function compareStatus(left: TicketListItem["status"], right: TicketListItem["st
   return order[left] - order[right];
 }
 
-function toQueueTicket(ticket: TicketListItem): AdminTicket {
+function toQueueTicket(
+  locale: Awaited<ReturnType<typeof getCurrentLocale>>,
+  ticket: TicketListItem
+): AdminTicket {
   return {
     id: ticket.ticketNumber,
     href: `/tickets/${ticket.ticketNumber}`,
@@ -103,16 +87,18 @@ function toQueueTicket(ticket: TicketListItem): AdminTicket {
     department: ticket.requester.department,
     priority: ticket.priority.toLowerCase() as AdminTicketPriority,
     status: ticket.status.toLowerCase() as AdminTicketStatus,
-    ageLabel: formatAgeLabel(ticket.createdAt),
-    updatedLabel: formatRelativeDate(ticket.updatedAt),
+    ageLabel: formatAgeLabel(locale, ticket.createdAt),
+    updatedLabel: formatRelativeDate(locale, ticket.updatedAt),
     assignee: ticket.assignedTo?.fullName ?? null,
     hasAttachments: ticket._count.attachments > 0,
-    responseLabel: formatResponseLabel(ticket),
-    summary: ticket.description
+    responseLabel: formatResponseLabel(locale, ticket),
+    summary: ticket.description,
+    needsFirstResponse: !ticket.firstResponseAt
   };
 }
 
 export default async function AdminTicketsPage() {
+  const locale = await getCurrentLocale();
   const user = await requireStaffUser();
   const tickets = await getTickets();
   const queueTickets = [...tickets]
@@ -129,10 +115,11 @@ export default async function AdminTicketsPage() {
 
       return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
     })
-    .map(toQueueTicket);
+    .map((ticket) => toQueueTicket(locale, ticket));
 
   return (
     <AdminTicketQueueView
+      locale={locale}
       tickets={queueTickets}
       currentUserRole={user.role === "ADMIN" ? "admin" : "technician"}
     />

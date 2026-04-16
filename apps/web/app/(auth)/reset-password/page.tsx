@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getSessionToken } from "@/lib/backend";
+import { getDictionary } from "@/lib/i18n";
+import { getCurrentLocale } from "@/lib/i18n-server";
 
 import { ResetPasswordForm } from "./reset-password-form";
 import styles from "../login/login.module.css";
@@ -18,40 +20,38 @@ export default async function ResetPasswordPage({
   }
 
   const params = await searchParams;
+  const locale = await getCurrentLocale();
+  const copy = getDictionary(locale).auth.resetPassword;
 
   return (
     <main className={styles.shell}>
       <section className={styles.hero}>
+        <div className={styles.heroTop}>
+          <p className={styles.kicker}>{copy.heroKicker}</p>
+        </div>
         <div className={styles.brandMark}>IR</div>
-        <p className={styles.kicker}>Recovery</p>
-        <h1>Set a new password and get back into the queue.</h1>
-        <p className={styles.copy}>
-          Paste the reset token from the current MVP flow, choose a new
-          password, and return to the normal ticket shell.
-        </p>
+        <h1>{copy.heroTitle}</h1>
+        <p className={styles.copy}>{copy.heroCopy}</p>
         <div className={styles.highlights}>
-          <span>Minimum 8 characters</span>
-          <span>Token validation</span>
-          <span>Back to login fast</span>
+          {copy.highlights.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
         </div>
       </section>
 
       <section className={styles.card}>
         <div className={styles.cardHeader}>
-          <p className={styles.cardEyebrow}>Reset password</p>
-          <h2>Finish the recovery flow</h2>
-          <p>
-            This screen uses the same backend reset endpoint that the future
-            email-driven flow will keep using.
-          </p>
+          <p className={styles.cardEyebrow}>{copy.cardEyebrow}</p>
+          <h2>{copy.cardTitle}</h2>
+          <p>{copy.cardCopy}</p>
         </div>
 
-        <ResetPasswordForm initialToken={params.token ?? ""} />
+        <ResetPasswordForm locale={locale} copy={copy} initialToken={params.token ?? ""} />
 
         <p className={styles.footerNote}>
-          Need a token first?{" "}
+          {copy.footerNote}{" "}
           <Link href="/forgot-password" className={styles.footerLink}>
-            Request one here
+            {copy.footerLink}
           </Link>
         </p>
       </section>
