@@ -38,6 +38,7 @@ Purpose:
 - Backend: NestJS
 - Database: PostgreSQL
 - ORM / DB access: Prisma
+- Runtime DB adapter: `@prisma/adapter-pg`
 - Language: TypeScript
 - Mobile later: Flutter
 
@@ -50,6 +51,17 @@ Web App
    /
 Flutter App (future)
 ```
+
+## Repo Structure
+
+- Backend remains at the repo root for now:
+  - `src/`
+  - `prisma/`
+  - `docs/`
+- Web client lives in `apps/web`
+- Mobile client lives in `apps/mobile`
+
+This is intentional for speed. We did not refactor the backend into `apps/api` yet because it would slow delivery without adding immediate value.
 
 ## Current Data Model
 
@@ -84,6 +96,7 @@ Important workflow statuses:
 - Added Prisma 7 config in `prisma.config.ts`.
 - Created the first Prisma schema.
 - Generated Prisma client successfully.
+- Added the official PostgreSQL Prisma adapter package and `pg`.
 - Added NestJS entrypoint and app module.
 - Added initial modules:
   - `auth`
@@ -122,41 +135,103 @@ Important workflow statuses:
   - allowed types: `png`, `jpg`, `jpeg`, `heic`, `heif`, `pdf`
   - max size: `10 MiB`
 - Added a seed script for default categories and an initial admin user.
+- Added the first web client scaffold in `apps/web`:
+  - Next.js app router
+  - branded login screen
+  - authenticated shell layout
+  - placeholder screens for tickets, create ticket, detail, and admin tickets
+- Wired the first real web-client integration:
+  - login goes through a Next route handler proxy
+  - backend token is stored in an HTTP-only session cookie
+  - app shell requires authentication
+  - the web ticket list loads real data from `/tickets`
+  - the web create-ticket flow creates real tickets through a Next route handler
+  - the web create-ticket flow uploads attachments after ticket creation
+  - the web ticket-detail route loads real ticket data, attachments, comments, and status history
+  - requesters can add public comments from ticket detail
+- Expanded the web staff flows:
+  - `/admin/tickets` now renders a real live queue for technicians/admins
+  - ticket detail includes staff assignment, workflow, and close-out controls
+  - assignment now preserves a handoff note in `TicketStatusHistory`
+  - staff can add internal notes and resolution notes from the web UI
+  - ticket detail now includes a web attachment uploader for adding more evidence after creation
+- Updated the backend ticket lookup so detail and related actions can resolve either by UUID or by `ticketNumber`.
+- Updated the backend to serve uploaded attachment binaries from `/uploads`.
+- Fixed the ticket-detail API payload to include `_count` so the staff console can render safely at runtime.
+- Fixed Prisma runtime initialization by wiring the backend and seed flow through `@prisma/adapter-pg`.
+- Fixed root TypeScript config for the seed path by adding Node types.
+- Added the first Flutter client scaffold in `apps/mobile`:
+  - branded login screen
+  - bottom-nav shell
+  - placeholder screens for my tickets, ticket detail, and create ticket
 - Added a README with setup instructions.
+- Added initial Prisma migration history under `prisma/migrations`.
+- Added migration/bootstrap scripts for deploy-safe Prisma workflows.
+- Refined the seed script so production bootstrap does not overwrite existing admin credentials or category definitions unless explicitly allowed.
+- Added bootstrap and migration documentation in `docs/bootstrap.md`.
 
 ## What Has Been Verified
 
 - `npm run prisma:generate` passed.
 - `npm run build` passed.
+- `cd apps/web && npm run build` passed after wiring the requester flow and again after adding the admin/staff flows.
+- Local PostgreSQL 16 cluster was initialized successfully in `.local-pgdata`.
+- Prisma schema was applied to the local database and seed completed successfully.
+- Backend booted successfully on port `4000`.
+- The existing local PostgreSQL database was baselined with the initial Prisma migration via `migrate resolve`.
+- Web requester flow was exercised live through browser automation:
+  - login with seeded admin account
+  - empty ticket list
+  - create ticket
+  - redirect to ticket detail by `ticketNumber`
+  - add public comment
+- Web admin/staff flow was exercised live through browser automation:
+  - open the admin queue
+  - open ticket detail from the queue
+  - assign the ticket with a handoff note
+  - post an internal note
+  - move the ticket to `IN_PROGRESS`
+  - resolve the ticket with a resolution summary
+  - confirm the status history and resolution summary render correctly
+  - confirm the new detail-page attachment uploader renders in the live page
 
 ## Current Reality
 
-The project is scaffolded but not functional yet.
+The core requester-facing and admin/staff web flows are build-verified and runtime-verified locally.
+The detail-page attachment uploader is rendered and integrated, but it still needs a dedicated live upload verification pass.
 
 What is still placeholder-only:
 
+- mobile-to-API integration
 - tests
+- user/category management UI
+- reporting dashboards
 
 ## Temporary Implementation Notes
 
 - `forgot-password` currently returns the raw reset token in the response because email delivery is not wired yet.
 - Once email delivery exists, that token should be sent out-of-band and removed from the API response.
+- The detail-page attachment uploader is rendered and build-verified; the original ticket-creation attachment flow is already runtime-verified, but the new detail-page upload action itself still deserves a dedicated live upload test with a sample file.
 
 ## Recommended Next Steps
 
 Build in this order:
 
-1. Add migration history and bootstrap docs for deployment.
-2. Refine seeds for production bootstrap and environment safety.
-3. Decide whether attachments remain on local disk or move to object storage.
-4. Start the web client now that backend auth and core CRUD are stable.
+1. Decide whether attachments remain on local disk or move to object storage.
+2. Add user/category management UI and first reporting screens.
+3. Do a dedicated live verification pass for the new detail-page attachment uploader and the reopen path.
+4. Wire the Flutter client to the backend auth and ticket endpoints.
 5. Add tests for auth, tickets, and status transitions.
 
 ## Immediate Next Coding Target
 
 If a new thread picks this up, the best next move is:
 
-Start the web client or add backend tests, depending on whether UI work or API hardening is the priority.
+Either:
+
+- verify the new detail-page attachment uploader with a real uploaded sample file, then
+- start the first user/category management or reporting screens, or
+- begin wiring Flutter auth and ticket-list flows against the now-proven API contract.
 
 ## Files To Read First In A New Session
 
@@ -170,10 +245,33 @@ Start the web client or add backend tests, depending on whether UI work or API h
 - `src/tickets/tickets.service.ts`
 - `src/tickets/attachment-upload.ts`
 - `prisma/seed.ts`
+- `apps/web/app/(auth)/login/page.tsx`
+- `apps/web/app/(auth)/login/login-form.tsx`
+- `apps/web/app/(app)/tickets/page.tsx`
+- `apps/web/app/(app)/tickets/new/page.tsx`
+- `apps/web/app/(app)/tickets/new/create-ticket-form.tsx`
+- `apps/web/app/(app)/tickets/[ticketId]/page.tsx`
+- `apps/web/app/(app)/tickets/[ticketId]/ticket-detail-view.tsx`
+- `apps/web/app/(app)/tickets/[ticketId]/ticket-staff-actions.tsx`
+- `apps/web/app/(app)/tickets/[ticketId]/ticket-attachment-form.tsx`
+- `apps/web/app/(app)/tickets/[ticketId]/ticket-comment-form.tsx`
+- `apps/web/app/(app)/admin/tickets/page.tsx`
+- `apps/web/app/(app)/admin/tickets/admin-ticket-queue-view.tsx`
+- `apps/web/lib/backend.ts`
+- `apps/web/lib/auth.ts`
+- `apps/web/lib/categories.ts`
+- `apps/web/lib/tickets.ts`
+- `apps/mobile/lib/src/instant_report_app.dart`
+- `apps/mobile/lib/src/auth/login_page.dart`
 
 ## Notes
 
 - Prisma 7 no longer uses `url = env("DATABASE_URL")` inside `schema.prisma`, so connection config lives in `prisma.config.ts`.
+- Prisma runtime in this repo currently uses `@prisma/adapter-pg` plus `pg`.
 - `dist/` exists locally from a successful build and is ignored by Git.
 - `tsconfig.build.tsbuildinfo` exists locally and is ignored by Git.
 - Uploaded attachment binaries live under `uploads/`, which is ignored by Git.
+- For local dev with the Next.js web app, the backend should run on port `4000`.
+- Local verification in this session used:
+  - `.env` with `DATABASE_URL=postgresql://postgres@localhost:5433/instantreport?schema=public`
+  - a local PostgreSQL 16 cluster in `.local-pgdata`

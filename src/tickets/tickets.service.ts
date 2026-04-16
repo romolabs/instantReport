@@ -67,6 +67,13 @@ const ticketDetailInclude = {
       },
     },
   },
+  _count: {
+    select: {
+      comments: true,
+      attachments: true,
+      statusHistory: true,
+    },
+  },
 } as const satisfies Prisma.TicketInclude;
 
 const ticketListSelect = {
@@ -150,6 +157,7 @@ export class TicketsService {
     this.ensureStaffActor(actor);
     const ticket = await this.requireTicket(ticketId);
     const assignee = await this.requireActiveStaffUser(payload.assignedToId, 'Assigned user must be a technician or admin');
+    const assignmentNote = this.optionalTrimmedText(payload.note);
 
     if (ticket.status === TicketStatus.CLOSED || ticket.status === TicketStatus.RESOLVED) {
       throw new BadRequestException('Only open or in-progress tickets can be assigned');
@@ -161,6 +169,10 @@ export class TicketsService {
 
     const now = new Date();
     const shouldSetFirstResponse = ticket.firstResponseAt == null;
+    const defaultAssignmentNote =
+      ticket.assignedToId && ticket.assignedToId !== assignee.id
+        ? `Reassigned to ${assignee.fullName}`
+        : `Assigned to ${assignee.fullName}`;
 
     await this.prisma.$transaction(async (tx) => {
       await tx.ticket.update({
@@ -178,7 +190,7 @@ export class TicketsService {
           changedById: actor.id,
           fromStatus: ticket.status,
           toStatus: TicketStatus.ASSIGNED,
-          note: `Assigned to ${assignee.fullName}`,
+          note: assignmentNote ?? defaultAssignmentNote,
         },
       });
     });
@@ -332,13 +344,9 @@ export class TicketsService {
     }
   }
 
-  private async requireTicket(ticketId: string) {
-    if (!isUUID(ticketId)) {
-      throw new BadRequestException('Invalid ticket id');
-    }
-
+  private async requireTicket(ticketIdentifier: string) {
     const ticket = await this.prisma.ticket.findUnique({
-      where: { id: ticketId },
+      where: this.resolveTicketWhereUnique(ticketIdentifier),
     });
 
     if (!ticket) {
@@ -348,13 +356,9 @@ export class TicketsService {
     return ticket;
   }
 
-  private async requireTicketDetail(ticketId: string) {
-    if (!isUUID(ticketId)) {
-      throw new BadRequestException('Invalid ticket id');
-    }
-
+  private async requireTicketDetail(ticketIdentifier: string) {
     const ticket = await this.prisma.ticket.findUnique({
-      where: { id: ticketId },
+      where: this.resolveTicketWhereUnique(ticketIdentifier),
       include: ticketDetailInclude,
     });
 
@@ -513,6 +517,20 @@ export class TicketsService {
 
   private isStaffRole(role: UserRole) {
     return role === UserRole.TECHNICIAN || role === UserRole.ADMIN;
+  }
+
+  private resolveTicketWhereUnique(ticketIdentifier: string): Prisma.TicketWhereUniqueInput {
+    const identifier = ticketIdentifier.trim();
+
+    if (!identifier) {
+      throw new BadRequestException('Ticket identifier is required');
+    }
+
+    if (isUUID(identifier)) {
+      return { id: identifier };
+    }
+
+    return { ticketNumber: identifier };
   }
 
   private generateTicketNumber(date = new Date()) {

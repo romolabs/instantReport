@@ -14,7 +14,10 @@
     "strict": true,
     "skipLibCheck": true,
     "moduleResolution": "node16",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "src/**/*.ts"
