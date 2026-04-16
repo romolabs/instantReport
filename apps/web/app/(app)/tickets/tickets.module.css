@@ -1,0 +1,83 @@
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.kicker {
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent-2);
+  font-size: 0.78rem;
+}
+
+.header h2 {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2rem, 3vw, 3rem);
+}
+
+.linkButton {
+  min-height: 44px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 14px;
+  color: #1a1205;
+  background: linear-gradient(160deg, #f0c56f, #d89431);
+  font-weight: 700;
+}
+
+.list {
+  display: grid;
+  gap: 14px;
+}
+
+.ticketCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ticketCard p,
+.ticketCard h3 {
+  margin: 0;
+}
+
+.ticketCard p {
+  color: var(--accent-2);
+  font-size: 0.85rem;
+}
+
+.ticketCard h3 {
+  margin-top: 8px;
+  font-size: 1.1rem;
+}
+
+.meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--muted);
+  justify-content: flex-end;
+}
+
+@media (max-width: 700px) {
+  .header,
+  .ticketCard {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .meta {
+    justify-content: start;
+  }
+}

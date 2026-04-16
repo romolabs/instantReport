@@ -1,0 +1,180 @@
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 420px);
+  gap: 32px;
+  padding: 32px;
+}
+
+.hero,
+.card {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(18, 26, 51, 0.92), rgba(10, 15, 28, 0.9));
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+  border-radius: 28px;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(28px, 6vw, 72px);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -10% -18% auto;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(216, 163, 78, 0.28), transparent 68%);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+.brandMark {
+  width: 74px;
+  height: 74px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.9rem;
+  color: #1a1205;
+  background: linear-gradient(160deg, #f0c56f, #d89431);
+  box-shadow: 0 20px 40px rgba(216, 163, 78, 0.26);
+}
+
+.kicker,
+.cardEyebrow {
+  margin: 22px 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  color: var(--accent-2);
+}
+
+.hero h1,
+.cardHeader h2 {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  line-height: 0.95;
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 5vw, 6rem);
+  max-width: 12ch;
+}
+
+.copy,
+.cardHeader p,
+.footerNote {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.copy {
+  max-width: 58ch;
+  font-size: 1.08rem;
+}
+
+.highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.highlights span {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+
+.card {
+  align-self: center;
+  padding: 28px;
+}
+
+.cardHeader h2 {
+  font-size: clamp(2rem, 3vw, 2.7rem);
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.errorMessage {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(239, 125, 125, 0.35);
+  border-radius: 14px;
+  color: var(--danger);
+  background: rgba(239, 125, 125, 0.08);
+}
+
+.form label {
+  display: grid;
+  gap: 8px;
+  color: var(--text);
+}
+
+.form span {
+  font-size: 0.92rem;
+  color: rgba(244, 241, 234, 0.8);
+}
+
+.form input {
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 0 14px;
+}
+
+.form input::placeholder {
+  color: rgba(244, 241, 234, 0.38);
+}
+
+.form button {
+  margin-top: 4px;
+  height: 50px;
+  border: 0;
+  border-radius: 14px;
+  color: #1a1205;
+  background: linear-gradient(160deg, #f0c56f, #d89431);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.footerNote {
+  margin-top: 18px;
+}
+
+.footerLink {
+  color: var(--accent);
+}
+
+@media (max-width: 960px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    max-width: 100%;
+  }
+}

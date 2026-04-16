@@ -1,0 +1,222 @@
+.shell {
+  display: grid;
+  gap: 24px;
+}
+
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px;
+  border-radius: 28px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(18, 26, 51, 0.94), rgba(10, 15, 28, 0.88));
+  box-shadow: var(--shadow);
+}
+
+.heroCopy {
+  display: grid;
+  gap: 8px;
+}
+
+.kicker,
+.sectionLabel {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.74rem;
+  color: var(--accent-2);
+}
+
+.hero h1,
+.panel h2 {
+  margin: 0;
+}
+
+.hero h1 {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.2rem, 4vw, 4rem);
+  line-height: 0.95;
+}
+
+.ticketNumber {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.badge,
+.backLink {
+  min-height: 42px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.backLink {
+  color: #1a1205;
+  font-weight: 700;
+  background: linear-gradient(160deg, #f0c56f, #d89431);
+  border: 0;
+}
+
+.summaryGrid,
+.timelineGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.panel {
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  gap: 16px;
+}
+
+.body,
+.emptyState,
+.timelineBody,
+.historyNote,
+.callout p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.callout {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(240, 197, 111, 0.08);
+  border: 1px solid rgba(240, 197, 111, 0.22);
+  display: grid;
+  gap: 8px;
+}
+
+.metaList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+
+.metaList div {
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.metaList dt {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metaList dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.attachmentList,
+.timelineList {
+  display: grid;
+  gap: 12px;
+}
+
+.attachmentCard,
+.timelineCard {
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.attachmentCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.attachmentCard p,
+.timelineHeader p,
+.panel p {
+  margin: 0;
+}
+
+.attachmentCard span,
+.timelineHeader span,
+.timelineHeader time,
+.timelineType {
+  color: var(--muted);
+}
+
+.attachmentCard a {
+  color: var(--accent);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.timelineHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.timelineHeader div {
+  display: grid;
+  gap: 4px;
+}
+
+.timelineType {
+  margin: 12px 0 8px;
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.historyNote {
+  margin-top: 12px;
+}
+
+@media (max-width: 900px) {
+  .hero,
+  .summaryGrid,
+  .timelineGrid,
+  .attachmentCard {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .heroMeta,
+  .metaList {
+    width: 100%;
+    justify-content: flex-start;
+    grid-template-columns: 1fr;
+  }
+}

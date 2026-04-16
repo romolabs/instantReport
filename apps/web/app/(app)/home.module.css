@@ -1,0 +1,73 @@
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.kicker {
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--accent-2);
+  font-size: 0.78rem;
+}
+
+.hero h2 {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
+  line-height: 1;
+}
+
+.copy {
+  max-width: 58ch;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 160px;
+  min-height: 48px;
+  border-radius: 14px;
+  color: #1a1205;
+  background: linear-gradient(160deg, #f0c56f, #d89431);
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.metricCard {
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 12px;
+}
+
+.metricCard span {
+  color: var(--muted);
+}
+
+.metricCard strong {
+  font-size: 2rem;
+}
+
+@media (max-width: 780px) {
+  .hero {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
