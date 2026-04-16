@@ -211,6 +211,12 @@ Important workflow statuses:
   - status filtering
   - quick filters for urgent work, response gaps, and attachments
 - The create-ticket web flow now handles post-create attachment failures more safely by steering users into the created ticket instead of encouraging duplicate submission
+- The web app now has branded route-level fallbacks:
+  - `(app)/loading.tsx`
+  - `(app)/error.tsx`
+  - `(app)/not-found.tsx`
+  - `(auth)/loading.tsx`
+  - `(auth)/error.tsx`
 - A repo-native API smoke test now exists at `npm run test:api:smoke`
   - verifies login, ticket creation, attachment upload, assignment, reopen, and close against the local API
 - A repo-native web Playwright suite now exists at `cd apps/web && npm run test:e2e`
@@ -225,7 +231,7 @@ The core requester-facing and admin/staff web flows are build-verified and runti
 What is still placeholder-only:
 
 - mobile create-ticket, detail, and attachment integration
-- route-level loading and error handling across the web app
+- deeper browser coverage beyond the current detail-page regression slice
 
 ## Temporary Implementation Notes
 
@@ -242,9 +248,9 @@ Build in this order:
 
 1. Decide whether attachments remain on local disk or move to object storage.
 2. Wire the Flutter client to the backend auth and ticket endpoints.
-3. Add route-level loading and error states for the main web surfaces.
-4. Expand automated coverage for auth, tickets, and status transitions.
-5. Add richer reporting only if the current dashboard needs deeper analytics.
+3. Expand automated coverage for auth, tickets, and status transitions.
+4. Add richer reporting only if the current dashboard needs deeper analytics.
+5. Decide whether the web app also needs deeper admin reporting before calling the MVP feature-complete.
 
 ## Mobile Progress
 
@@ -266,7 +272,7 @@ If a new thread picks this up, the best next move is:
 Either:
 
 - begin wiring Flutter auth and ticket-list flows against the now-proven API contract, or
-- add route-level loading and error handling for the main web surfaces, or
+- expand web browser coverage beyond the current detail-page regression slice, or
 - make the attachment storage strategy explicit before deployment planning goes further.
 
 ## Files To Read First In A New Session

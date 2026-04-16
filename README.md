@@ -80,6 +80,7 @@ For local web + API development, run the backend on port `4000` so the Next.js a
   - ticket detail now includes an attachment uploader for additional evidence
   - ticket creation now recovers more safely from attachment upload failures after the ticket already exists
   - ticket detail lookup now works by ticket number as well as UUID
+  - authenticated and auth route groups now have branded loading and error fallbacks instead of generic Next.js failures
   - the web app has been verified live against a local PostgreSQL-backed API for:
     - requester login, ticket list, ticket creation, ticket detail redirect, and public comments
     - admin queue access
@@ -102,7 +103,7 @@ For local web + API development, run the backend on port `4000` so the Next.js a
 - Wire the Flutter client to the backend API
 - Extend the Flutter client from login + ticket list into detail and ticket creation
 - Expand automated coverage beyond the API smoke harness
-- Add route-level loading and error states for the main web surfaces
+- Expand web browser coverage beyond the detail-page regression slice
 
 ## Migrations And Bootstrap
 
