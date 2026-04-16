@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo, useState } from "react";
+
 import styles from "./admin-ticket-queue-view.module.css";
 
 export type AdminTicketStatus =
@@ -32,6 +36,12 @@ export interface AdminTicketQueueViewProps {
   currentUserRole?: "admin" | "technician";
 }
 
+type QueueQuickFilter =
+  | "all"
+  | "urgent"
+  | "needs_response"
+  | "with_attachments";
+
 const statusCopy: Record<AdminTicketStatus, string> = {
   open: "Open",
   assigned: "Assigned",
@@ -55,6 +65,13 @@ const priorityTone: Record<AdminTicketPriority, string> = {
   medium: styles.priorityMedium,
   high: styles.priorityHigh,
   urgent: styles.priorityUrgent
+};
+
+const quickFilterCopy: Record<QueueQuickFilter, string> = {
+  all: "All tickets",
+  urgent: "Urgent first",
+  needs_response: "Needs response",
+  with_attachments: "Has attachments"
 };
 
 function countByStatus(tickets: AdminTicket[]) {
@@ -98,14 +115,86 @@ function actionLabel(role: AdminTicketQueueViewProps["currentUserRole"]) {
   return role === "technician" ? "Start next ticket" : "Assign from queue";
 }
 
+function normalize(value?: string | null) {
+  return value?.toLowerCase().trim() ?? "";
+}
+
+function matchesSearch(ticket: AdminTicket, query: string) {
+  if (!query) {
+    return true;
+  }
+
+  const haystack = [
+    ticket.id,
+    ticket.title,
+    ticket.requesterName,
+    ticket.department,
+    ticket.assignee,
+    ticket.summary
+  ]
+    .map((value) => normalize(value))
+    .join(" ");
+
+  return haystack.includes(query);
+}
+
 export function AdminTicketQueueView({
   tickets = [],
   currentUserRole = "admin"
 }: AdminTicketQueueViewProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<AdminTicketStatus | "all">("all");
+  const [quickFilter, setQuickFilter] = useState<QueueQuickFilter>("all");
+
+  const normalizedQuery = normalize(searchQuery);
+  const filteredTickets = useMemo(() => {
+    return tickets.filter((ticket) => {
+      if (!matchesSearch(ticket, normalizedQuery)) {
+        return false;
+      }
+
+      if (statusFilter !== "all" && ticket.status !== statusFilter) {
+        return false;
+      }
+
+      if (quickFilter === "urgent" && ticket.priority !== "urgent") {
+        return false;
+      }
+
+      if (
+        quickFilter === "needs_response" &&
+        ticket.responseLabel !== "Awaiting first response"
+      ) {
+        return false;
+      }
+
+      if (quickFilter === "with_attachments" && !ticket.hasAttachments) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [normalizedQuery, quickFilter, statusFilter, tickets]);
+
   const counts = countByStatus(tickets);
-  const openWork = counts.open + counts.assigned + counts.in_progress + counts.pending_user;
+  const filteredCounts = countByStatus(filteredTickets);
+  const openWork =
+    counts.open + counts.assigned + counts.in_progress + counts.pending_user;
   const urgentTickets = countUrgentTickets(tickets);
-  const nextTicket = tickets[0];
+  const filteredOpenWork =
+    filteredCounts.open +
+    filteredCounts.assigned +
+    filteredCounts.in_progress +
+    filteredCounts.pending_user;
+  const nextTicket = filteredTickets[0] ?? tickets[0];
+  const hasActiveFilters =
+    Boolean(normalizedQuery) || statusFilter !== "all" || quickFilter !== "all";
+
+  function resetFilters() {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setQuickFilter("all");
+  }
 
   return (
     <section className={styles.shell}>
@@ -161,26 +250,90 @@ export function AdminTicketQueueView({
         <div>
           <p className={styles.sectionLabel}>Queue snapshot</p>
           <h3>Prioritize the cases that are aging, blocked, or escalating.</h3>
+          <p className={styles.resultMeta}>
+            Showing {filteredTickets.length} of {tickets.length} tickets.
+            {hasActiveFilters
+              ? ` ${filteredOpenWork} still count as active work in the current view.`
+              : ` ${openWork} are still active across the full queue.`}
+          </p>
         </div>
-        <div className={styles.filters}>
-          <span>All tickets</span>
-          <span>Urgent first</span>
-          <span>Needs response</span>
+
+        <div className={styles.controlPanel}>
+          <label className={styles.searchField}>
+            <span>Search queue</span>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Ticket, requester, department, assignee..."
+            />
+          </label>
+
+          <label className={styles.selectField}>
+            <span>Status</span>
+            <select
+              value={statusFilter}
+              onChange={(event) =>
+                setStatusFilter(event.target.value as AdminTicketStatus | "all")
+              }
+            >
+              <option value="all">All statuses</option>
+              {Object.entries(statusCopy).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className={styles.filters} role="list" aria-label="Queue filters">
+            {(Object.keys(quickFilterCopy) as QueueQuickFilter[]).map((filter) => {
+              const active = quickFilter === filter;
+
+              return (
+                <button
+                  key={filter}
+                  type="button"
+                  className={active ? styles.filterActive : styles.filterChip}
+                  onClick={() => setQuickFilter(filter)}
+                >
+                  {quickFilterCopy[filter]}
+                </button>
+              );
+            })}
+          </div>
+
+          {hasActiveFilters ? (
+            <button
+              type="button"
+              className={styles.resetButton}
+              onClick={resetFilters}
+            >
+              Clear filters
+            </button>
+          ) : null}
         </div>
       </section>
 
-      {tickets.length === 0 ? (
+      {filteredTickets.length === 0 ? (
         <article className={styles.emptyState}>
-          <p className={styles.emptyLabel}>No tickets in the queue</p>
-          <h3>Everything is clear for now.</h3>
+          <p className={styles.emptyLabel}>
+            {tickets.length === 0 ? "No tickets in the queue" : "No tickets match the current filters"}
+          </p>
+          <h3>
+            {tickets.length === 0
+              ? "Everything is clear for now."
+              : "Try widening the queue filters."}
+          </h3>
           <p>
-            When a request comes in, it will show up here with priority, status, attachments, and the
-            latest action on record.
+            {tickets.length === 0
+              ? "When a request comes in, it will show up here with priority, status, attachments, and the latest action on record."
+              : "Search by requester, assignee, ticket number, or switch the quick filters to bring more of the queue back into view."}
           </p>
         </article>
       ) : (
         <div className={styles.queue}>
-          {tickets.map((ticket) => (
+          {filteredTickets.map((ticket) => (
             <article key={ticket.id} className={styles.ticketCard}>
               <div className={styles.ticketTop}>
                 <div>

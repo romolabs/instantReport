@@ -98,6 +98,47 @@
   background: rgba(239, 125, 125, 0.08);
 }
 
+.recoveryCard {
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(240, 197, 111, 0.22);
+  background: rgba(240, 197, 111, 0.08);
+  display: grid;
+  gap: 10px;
+}
+
+.recoveryLabel {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent-2);
+  font-size: 0.76rem;
+}
+
+.recoveryCopy {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.recoveryActions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.recoveryLink {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #1a1205;
+  background: linear-gradient(160deg, #f0c56f, #d89431);
+  font-weight: 700;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;

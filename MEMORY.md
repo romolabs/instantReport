@@ -202,8 +202,20 @@ Important workflow statuses:
   - `/admin/users` can create and update users
   - `/admin/categories` can create and update categories
 - The authenticated web dashboard at `/` now shows live role-aware reporting metrics
+- Web auth recovery is now exposed through the app:
+  - `/forgot-password` proxies the backend recovery flow
+  - `/reset-password` completes token-based password resets
+  - the current temporary raw-token behavior is surfaced clearly in the UI
+- The admin ticket queue now has real client-side filters:
+  - search by ticket/requester/department/assignee
+  - status filtering
+  - quick filters for urgent work, response gaps, and attachments
+- The create-ticket web flow now handles post-create attachment failures more safely by steering users into the created ticket instead of encouraging duplicate submission
 - A repo-native API smoke test now exists at `npm run test:api:smoke`
   - verifies login, ticket creation, attachment upload, assignment, reopen, and close against the local API
+- A repo-native web Playwright suite now exists at `cd apps/web && npm run test:e2e`
+  - verifies detail-page attachment upload
+  - verifies `CLOSED -> RESOLVED` reopen requires a reason and succeeds once provided
 
 ## Current Reality
 
@@ -213,7 +225,7 @@ The core requester-facing and admin/staff web flows are build-verified and runti
 What is still placeholder-only:
 
 - mobile create-ticket, detail, and attachment integration
-- deeper browser-level test coverage
+- route-level loading and error handling across the web app
 
 ## Temporary Implementation Notes
 
@@ -221,6 +233,8 @@ What is still placeholder-only:
 - Once email delivery exists, that token should be sent out-of-band and removed from the API response.
 - The API smoke harness requires the local backend to be running, and defaults to `http://127.0.0.1:4000/api`.
 - It uses the seeded admin credentials by default unless `SMOKE_ADMIN_EMAIL` and `SMOKE_ADMIN_PASSWORD` are set.
+- The web Playwright suite starts its own Next dev server on port `3100` by default and assumes the backend is already running on port `4000`.
+- For constrained environments, the Playwright suite can reuse an existing web server with `PLAYWRIGHT_DISABLE_WEBSERVER=1`.
 
 ## Recommended Next Steps
 
@@ -228,7 +242,7 @@ Build in this order:
 
 1. Decide whether attachments remain on local disk or move to object storage.
 2. Wire the Flutter client to the backend auth and ticket endpoints.
-3. Add browser-level web tests for the detail-page attachment and reopen flows.
+3. Add route-level loading and error states for the main web surfaces.
 4. Expand automated coverage for auth, tickets, and status transitions.
 5. Add richer reporting only if the current dashboard needs deeper analytics.
 
@@ -252,7 +266,7 @@ If a new thread picks this up, the best next move is:
 Either:
 
 - begin wiring Flutter auth and ticket-list flows against the now-proven API contract, or
-- add browser-level tests for the detail-page attachment and reopen flows, or
+- add route-level loading and error handling for the main web surfaces, or
 - make the attachment storage strategy explicit before deployment planning goes further.
 
 ## Files To Read First In A New Session

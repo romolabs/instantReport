@@ -43,6 +43,15 @@ export default async function LoginPage() {
 
         <LoginForm />
 
+        <div className={styles.recoveryLinks}>
+          <Link href="/forgot-password" className={styles.secondaryLink}>
+            Forgot your password?
+          </Link>
+          <Link href="/reset-password" className={styles.secondaryLink}>
+            Already have a reset token?
+          </Link>
+        </div>
+
         <p className={styles.footerNote}>
           Need the current build?{" "}
           <Link href="/tickets" className={styles.footerLink}>

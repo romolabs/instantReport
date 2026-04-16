@@ -69,13 +69,16 @@ For local web + API development, run the backend on port `4000` so the Next.js a
   - `/tickets/new` creates real tickets and uploads attachments
   - `/` now renders a live dashboard with role-aware queue and reporting metrics
   - `/admin/tickets` shows a live triage queue for staff users
+  - `/admin/tickets` now has real client-side queue filters for search, status, urgency, response gaps, and attachments
   - `/admin/users` manages real users
   - `/admin/categories` manages real categories
+  - `/forgot-password` and `/reset-password` expose the existing recovery backend flows through the web app
   - `/tickets/[ticketId]` loads real ticket detail, attachments, comments, and status history
   - staff can assign tickets with a handoff note
   - staff can post internal and resolution notes
   - staff can move tickets through workflow states and resolve them with a resolution summary
   - ticket detail now includes an attachment uploader for additional evidence
+  - ticket creation now recovers more safely from attachment upload failures after the ticket already exists
   - ticket detail lookup now works by ticket number as well as UUID
   - the web app has been verified live against a local PostgreSQL-backed API for:
     - requester login, ticket list, ticket creation, ticket detail redirect, and public comments
@@ -90,6 +93,7 @@ For local web + API development, run the backend on port `4000` so the Next.js a
   - `My Tickets` loads real ticket data
   - create-ticket and full detail actions are still the next mobile steps
 - `npm run test:api:smoke` now runs a real backend smoke test for login, ticket creation, attachment upload, assignment, reopen, and close flows against a running local API.
+- `cd apps/web && npm run test:e2e` now runs committed Playwright coverage for detail-page reopen and attachment flows.
 
 ## Next Build Steps
 
@@ -97,8 +101,8 @@ For local web + API development, run the backend on port `4000` so the Next.js a
 - Decide whether attachment storage should stay local or move to object storage later
 - Wire the Flutter client to the backend API
 - Extend the Flutter client from login + ticket list into detail and ticket creation
-- Add browser-level web tests for the detail-page attachment and reopen flows
 - Expand automated coverage beyond the API smoke harness
+- Add route-level loading and error states for the main web surfaces
 
 ## Migrations And Bootstrap
 

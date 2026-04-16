@@ -206,20 +206,82 @@
   font-size: clamp(1.4rem, 2vw, 2rem);
 }
 
+.resultMeta {
+  margin: 12px 0 0;
+  max-width: 58ch;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.controlPanel {
+  min-width: min(100%, 420px);
+  display: grid;
+  gap: 12px;
+  justify-items: stretch;
+}
+
+.searchField,
+.selectField {
+  display: grid;
+  gap: 8px;
+}
+
+.searchField span,
+.selectField span {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.searchField input,
+.selectField select {
+  min-height: 46px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 0 14px;
+  font: inherit;
+}
+
+.searchField input::placeholder {
+  color: rgba(244, 241, 234, 0.38);
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
   gap: 10px;
 }
 
-.filters span {
+.filterChip,
+.filterActive,
+.resetButton {
+  min-height: 38px;
   padding: 9px 14px;
   border-radius: 999px;
   border: 1px solid var(--line);
+  font-size: 0.88rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.filterChip,
+.resetButton {
   background: rgba(255, 255, 255, 0.03);
   color: var(--muted);
-  font-size: 0.88rem;
+}
+
+.filterActive {
+  background: linear-gradient(160deg, #f0c56f, #d89431);
+  border-color: transparent;
+  color: #1a1205;
+  font-weight: 700;
+}
+
+.resetButton {
+  justify-self: start;
 }
 
 .queue {
@@ -387,6 +449,10 @@
     justify-content: flex-start;
   }
 
+  .controlPanel {
+    width: 100%;
+  }
+
   .ticketMeta {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -399,7 +465,8 @@
   }
 
   .ticketFooter,
-  .heroActions {
+  .heroActions,
+  .filters {
     flex-direction: column;
     align-items: stretch;
   }
@@ -407,7 +474,10 @@
   .secondaryAction,
   .primaryAction,
   .ghostAction,
-  .primaryMiniAction {
+  .primaryMiniAction,
+  .filterChip,
+  .filterActive,
+  .resetButton {
     width: 100%;
   }
 }

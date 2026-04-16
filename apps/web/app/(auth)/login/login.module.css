@@ -121,6 +121,13 @@
   background: rgba(239, 125, 125, 0.08);
 }
 
+.helperNote,
+.recoveryMeta {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .form label {
   display: grid;
   gap: 8px;
@@ -165,8 +172,72 @@
   margin-top: 18px;
 }
 
+.recoveryLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
 .footerLink {
   color: var(--accent);
+}
+
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.recoveryCard {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(104, 199, 183, 0.2);
+  background: rgba(104, 199, 183, 0.08);
+  display: grid;
+  gap: 12px;
+}
+
+.recoveryLabel {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.74rem;
+  color: #9ff0e2;
+}
+
+.recoveryMessage {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.tokenBlock {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(11, 16, 30, 0.48);
+  display: grid;
+  gap: 8px;
+}
+
+.tokenBlock span {
+  color: var(--muted);
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tokenBlock code {
+  word-break: break-all;
+  font-size: 0.95rem;
+  color: var(--text);
 }
 
 @media (max-width: 960px) {

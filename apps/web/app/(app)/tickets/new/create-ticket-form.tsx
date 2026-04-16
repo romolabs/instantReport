@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { startTransition, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
@@ -33,11 +34,13 @@ export function CreateTicketForm({ categories }: CreateTicketFormProps) {
   const [assetTag, setAssetTag] = useState("");
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [createdTicketNumber, setCreatedTicketNumber] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const disabled =
     isSubmitting ||
+    Boolean(createdTicketNumber) ||
     !title.trim() ||
     !description.trim() ||
     !categoryId ||
@@ -56,6 +59,7 @@ export function CreateTicketForm({ categories }: CreateTicketFormProps) {
 
     setIsSubmitting(true);
     setError(null);
+    setCreatedTicketNumber(null);
 
     try {
       const createResponse = await fetch("/api/tickets", {
@@ -82,6 +86,8 @@ export function CreateTicketForm({ categories }: CreateTicketFormProps) {
         return;
       }
 
+      const uploadFailures: string[] = [];
+
       for (const file of files) {
         const formData = new FormData();
         formData.append("file", file);
@@ -99,12 +105,21 @@ export function CreateTicketForm({ categories }: CreateTicketFormProps) {
           | null;
 
         if (!uploadResponse.ok) {
-          setError(
-            uploadPayload?.message ??
-              `Ticket created, but "${file.name}" could not be uploaded.`
+          uploadFailures.push(
+            uploadPayload?.message
+              ? `${file.name}: ${uploadPayload.message}`
+              : file.name
           );
-          return;
         }
+      }
+
+      if (uploadFailures.length > 0) {
+        setCreatedTicketNumber(createPayload.ticketNumber);
+        setFiles([]);
+        setError(
+          `Ticket ${createPayload.ticketNumber} was created, but ${uploadFailures.length} attachment${uploadFailures.length === 1 ? "" : "s"} failed to upload. Open the ticket detail page to finish adding evidence without creating a duplicate ticket.`
+        );
+        return;
       }
 
       startTransition(() => {
@@ -228,6 +243,24 @@ export function CreateTicketForm({ categories }: CreateTicketFormProps) {
         ) : null}
 
         {error ? <p className={styles.errorMessage}>{error}</p> : null}
+
+        {createdTicketNumber ? (
+          <div className={styles.recoveryCard}>
+            <p className={styles.recoveryLabel}>Ticket created</p>
+            <p className={styles.recoveryCopy}>
+              The request is already in the system. Continue from the detail
+              page instead of submitting the form again.
+            </p>
+            <div className={styles.recoveryActions}>
+              <Link
+                href={`/tickets/${createdTicketNumber}`}
+                className={styles.recoveryLink}
+              >
+                Open {createdTicketNumber}
+              </Link>
+            </div>
+          </div>
+        ) : null}
 
         <div className={styles.actions}>
           <button type="submit" disabled={disabled}>
