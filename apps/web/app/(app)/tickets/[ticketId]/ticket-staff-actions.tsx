@@ -135,6 +135,31 @@ export function TicketStaffActions({
     return null;
   }
 
+  const assignmentEyebrow =
+    currentUserRole === "admin" ? "Assignment" : "Ownership";
+  const assignmentTitle =
+    currentUserRole === "admin" ? "Route the ticket" : "Take ownership";
+  const assignmentDescription =
+    currentUserRole === "admin"
+      ? "Pick the current owner and capture a short handoff note."
+      : "Claim this ticket for yourself and capture a short handoff note.";
+  const assignmentSelectLabel =
+    currentUserRole === "admin" ? "Assign to" : "Owner";
+  const assignmentEmptyOption =
+    assignableUsers.length === 0
+      ? "No assignable users supplied"
+      : currentUserRole === "admin"
+        ? "Choose a technician or admin"
+        : "Assign this ticket to me";
+  const assignmentHelperText =
+    ticket.status === "RESOLVED" || ticket.status === "CLOSED"
+      ? "Resolved and closed tickets must be reopened before ownership can change."
+      : currentUserRole === "admin"
+        ? "Assignment moves ownership without losing the existing history."
+        : "Technicians can claim tickets for themselves while admins can route them across the team.";
+  const assignmentButtonLabel =
+    currentUserRole === "admin" ? "Save assignment" : "Claim ticket";
+
   async function handleAssignmentSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -310,23 +335,19 @@ export function TicketStaffActions({
 
       <div className={styles.grid}>
         <FieldShell
-          eyebrow="Assignment"
-          title="Route the ticket"
-          description="Pick the current owner and capture a short handoff note."
+          eyebrow={assignmentEyebrow}
+          title={assignmentTitle}
+          description={assignmentDescription}
         >
           <form className={styles.form} onSubmit={handleAssignmentSubmit}>
             <label className={styles.field}>
-              <span>Assign to</span>
+              <span>{assignmentSelectLabel}</span>
               <select
                 value={assigneeId}
                 onChange={(event) => setAssigneeId(event.target.value)}
                 disabled={assignableUsers.length === 0}
               >
-                <option value="">
-                  {assignableUsers.length === 0
-                    ? "No assignable users supplied"
-                    : "Choose a technician or admin"}
-                </option>
+                <option value="">{assignmentEmptyOption}</option>
                 {assignableUsers.map((user) => (
                   <option key={user.id} value={user.id}>
                     {user.fullName} - {formatRole(user.role)}
@@ -348,17 +369,13 @@ export function TicketStaffActions({
             {assignError ? <p className={styles.errorText}>{assignError}</p> : null}
 
             <div className={styles.formFooter}>
-              <p className={styles.helperText}>
-                {ticket.status === "RESOLVED" || ticket.status === "CLOSED"
-                  ? "Resolved and closed tickets must be reopened before they can be reassigned."
-                  : "Assignment moves ownership without losing the existing history."}
-              </p>
+              <p className={styles.helperText}>{assignmentHelperText}</p>
               <button
                 type="submit"
                 disabled={assignmentBusy || !canAssign}
                 className={styles.primaryButton}
               >
-                {assignmentBusy ? "Saving assignment..." : "Save assignment"}
+                {assignmentBusy ? "Saving assignment..." : assignmentButtonLabel}
               </button>
             </div>
           </form>

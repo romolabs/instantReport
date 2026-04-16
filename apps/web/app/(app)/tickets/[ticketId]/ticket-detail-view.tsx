@@ -123,30 +123,56 @@ export function TicketDetailView({
   return (
     <div className={styles.shell}>
       <header className={styles.hero}>
+        <div className={styles.heroTop}>
+          <Link href={backHref} className={styles.backLink}>
+            {backLabel}
+          </Link>
+          <p className={styles.ticketNumber}>{ticket.ticketNumber}</p>
+        </div>
+
         <div className={styles.heroCopy}>
           <p className={styles.kicker}>Ticket detail</p>
           <h1>{ticket.title}</h1>
-          <p className={styles.ticketNumber}>{ticket.ticketNumber}</p>
+          <p className={styles.heroDescription}>
+            Keep the issue, supporting evidence, and the conversation in one
+            place so the next action is obvious on both desktop and mobile.
+          </p>
         </div>
 
         <div className={styles.heroMeta}>
           <span className={styles.badge}>{formatStatus(ticket.status)}</span>
           <span className={styles.badge}>{formatStatus(ticket.priority)}</span>
-          <Link href={backHref} className={styles.backLink}>
-            {backLabel}
-          </Link>
         </div>
+
+        <dl className={styles.heroFacts}>
+          <div>
+            <dt>Requester</dt>
+            <dd>{ticket.requester.fullName}</dd>
+          </div>
+          <div>
+            <dt>Assigned</dt>
+            <dd>{ticket.assignedTo?.fullName ?? "Unassigned"}</dd>
+          </div>
+          <div>
+            <dt>Category</dt>
+            <dd>{ticket.category.name}</dd>
+          </div>
+          <div>
+            <dt>Updated</dt>
+            <dd>{formatDateTime(ticket.updatedAt)}</dd>
+          </div>
+        </dl>
       </header>
 
-      <TicketStaffActions
-        ticket={ticket}
-        currentUserRole={currentUserRole}
-        assignableUsers={assignableUsers}
-      />
-
-      <div className={styles.summaryGrid}>
+      <div className={styles.mobilePriority}>
         <section className={styles.panel}>
-          <h2>Issue summary</h2>
+          <div className={styles.sectionHeader}>
+            <div>
+              <p className={styles.sectionLabel}>Issue summary</p>
+              <h2>What is happening</h2>
+            </div>
+          </div>
+
           <p className={styles.body}>{ticket.description}</p>
 
           {ticket.resolutionSummary ? (
@@ -158,7 +184,13 @@ export function TicketDetailView({
         </section>
 
         <section className={styles.panel}>
-          <h2>Request context</h2>
+          <div className={styles.sectionHeader}>
+            <div>
+              <p className={styles.sectionLabel}>Request context</p>
+              <h2>Key details</h2>
+            </div>
+          </div>
+
           <dl className={styles.metaList}>
             <div>
               <dt>Requester</dt>
@@ -194,6 +226,14 @@ export function TicketDetailView({
             </div>
           </dl>
         </section>
+      </div>
+
+      <div className={styles.staffActionsWrap}>
+        <TicketStaffActions
+          ticket={ticket}
+          currentUserRole={currentUserRole}
+          assignableUsers={assignableUsers}
+        />
       </div>
 
       <section className={styles.panel}>
