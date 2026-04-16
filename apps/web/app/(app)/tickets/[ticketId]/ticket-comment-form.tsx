@@ -3,26 +3,27 @@
 import { startTransition, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
+import type { AppDictionary, Locale } from "@/lib/i18n";
+import { translateStatus } from "@/lib/i18n";
+
 import styles from "./ticket-comment-form.module.css";
 
 type CommentType = "PUBLIC" | "INTERNAL_NOTE" | "RESOLUTION_NOTE";
 
 interface TicketCommentFormProps {
   ticketIdentifier: string;
+  locale: Locale;
+  copy: AppDictionary["tickets"]["commentForm"];
   currentUserRole?: "requester" | "technician" | "admin";
 }
-
-const noteTypeLabels: Record<CommentType, string> = {
-  PUBLIC: "Public comment",
-  INTERNAL_NOTE: "Internal note",
-  RESOLUTION_NOTE: "Resolution note"
-};
 
 function isStaffRole(role?: TicketCommentFormProps["currentUserRole"]) {
   return role === "technician" || role === "admin";
 }
 
 export function TicketCommentForm({
+  locale,
+  copy,
   ticketIdentifier,
   currentUserRole = "requester"
 }: TicketCommentFormProps) {
@@ -32,6 +33,11 @@ export function TicketCommentForm({
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const staffUser = isStaffRole(currentUserRole);
+  const noteTypeLabels: Record<CommentType, string> = {
+    PUBLIC: translateStatus(locale, "PUBLIC"),
+    INTERNAL_NOTE: translateStatus(locale, "INTERNAL_NOTE"),
+    RESOLUTION_NOTE: translateStatus(locale, "RESOLUTION_NOTE")
+  };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -63,7 +69,7 @@ export function TicketCommentForm({
         | null;
 
       if (!response.ok) {
-        setError(payload?.message ?? "Unable to add your comment.");
+        setError(payload?.message ?? copy.error);
         return;
       }
 
@@ -73,7 +79,7 @@ export function TicketCommentForm({
         router.refresh();
       });
     } catch {
-      setError("Unable to reach the server right now.");
+      setError(copy.reachServer);
     } finally {
       setIsSubmitting(false);
     }
@@ -83,14 +89,14 @@ export function TicketCommentForm({
     <form className={styles.form} onSubmit={handleSubmit}>
       <div className={styles.header}>
         <div>
-          <p className={styles.kicker}>Add context</p>
-          <h2>{staffUser ? "Add a ticket note" : "Leave a public comment"}</h2>
+          <p className={styles.kicker}>{copy.kicker}</p>
+          <h2>{staffUser ? copy.titleStaff : copy.titleRequester}</h2>
         </div>
       </div>
 
       {staffUser ? (
         <label className={styles.field}>
-          <span>Note visibility</span>
+          <span>{copy.noteVisibility}</span>
           <select
             value={commentType}
             onChange={(event) => setCommentType(event.target.value as CommentType)}
@@ -102,7 +108,7 @@ export function TicketCommentForm({
             ))}
           </select>
           <small className={styles.helperText}>
-            Internal notes stay hidden from requesters. Resolution notes stay visible in the ticket history.
+            {copy.noteVisibilityHelp}
           </small>
         </label>
       ) : null}
@@ -112,8 +118,8 @@ export function TicketCommentForm({
         onChange={(event) => setBody(event.target.value)}
         placeholder={
           staffUser
-            ? "Capture troubleshooting details, a user-facing update, or the final resolution context."
-            : "Share new information, confirm a test, or answer the IT team's question."
+            ? copy.placeholders.staff
+            : copy.placeholders.requester
         }
         rows={5}
       />
@@ -123,10 +129,10 @@ export function TicketCommentForm({
       <div className={styles.actions}>
         <button type="submit" disabled={isSubmitting || !body.trim()}>
           {isSubmitting
-            ? "Posting note..."
+            ? copy.postingComment
             : staffUser
               ? `Post ${noteTypeLabels[commentType].toLowerCase()}`
-              : "Post comment"}
+              : copy.submitComment}
         </button>
       </div>
     </form>

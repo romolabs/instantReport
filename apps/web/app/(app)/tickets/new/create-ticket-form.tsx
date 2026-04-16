@@ -5,18 +5,15 @@ import { startTransition, useState, type ChangeEvent, type FormEvent } from "rea
 import { useRouter } from "next/navigation";
 
 import type { CategoryOption } from "@/lib/categories";
+import type { AppDictionary, Locale } from "@/lib/i18n";
+import { translateStatus } from "@/lib/i18n";
 
 import styles from "./create-ticket-form.module.css";
 
-const priorities = [
-  { value: "LOW", label: "Low" },
-  { value: "MEDIUM", label: "Medium" },
-  { value: "HIGH", label: "High" },
-  { value: "URGENT", label: "Urgent" }
-] as const;
-
 interface CreateTicketFormProps {
   categories: CategoryOption[];
+  locale: Locale;
+  copy: AppDictionary["tickets"]["create"];
 }
 
 interface CreatedTicketPayload {
@@ -24,8 +21,18 @@ interface CreatedTicketPayload {
   ticketNumber: string;
 }
 
-export function CreateTicketForm({ categories }: CreateTicketFormProps) {
+export function CreateTicketForm({
+  categories,
+  locale,
+  copy
+}: CreateTicketFormProps) {
   const router = useRouter();
+  const priorities = [
+    { value: "LOW", label: translateStatus(locale, "LOW") },
+    { value: "MEDIUM", label: translateStatus(locale, "MEDIUM") },
+    { value: "HIGH", label: translateStatus(locale, "HIGH") },
+    { value: "URGENT", label: translateStatus(locale, "URGENT") }
+  ] as const;
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "");
   const [priority, setPriority] =
@@ -137,29 +144,26 @@ export function CreateTicketForm({ categories }: CreateTicketFormProps) {
     <section className={styles.shell}>
       <div className={styles.header}>
         <div>
-          <p className={styles.kicker}>Create ticket</p>
-          <h2>Capture the issue with enough context to act quickly.</h2>
-          <p className={styles.copy}>
-            Keep the request clear, assign the right category, and attach photos
-            or screenshots if they help the IT team reproduce the problem.
-          </p>
+          <p className={styles.kicker}>{copy.formKicker}</p>
+          <h2>{copy.formTitle}</h2>
+          <p className={styles.copy}>{copy.formCopy}</p>
         </div>
       </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.grid}>
           <label className={styles.field}>
-            <span>Title</span>
+            <span>{copy.fields.title}</span>
             <input
               type="text"
-              placeholder="Printer in finance is offline"
+              placeholder={copy.placeholders.title}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
             />
           </label>
 
           <label className={styles.field}>
-            <span>Category</span>
+            <span>{copy.fields.category}</span>
             <select
               value={categoryId}
               onChange={(event) => setCategoryId(event.target.value)}
@@ -173,7 +177,7 @@ export function CreateTicketForm({ categories }: CreateTicketFormProps) {
           </label>
 
           <label className={styles.field}>
-            <span>Priority</span>
+            <span>{copy.fields.priority}</span>
             <select
               value={priority}
               onChange={(event) =>
@@ -191,43 +195,41 @@ export function CreateTicketForm({ categories }: CreateTicketFormProps) {
           </label>
 
           <label className={styles.field}>
-            <span>Location</span>
+            <span>{copy.fields.location}</span>
             <input
               type="text"
-              placeholder="HR office, second floor"
+              placeholder={copy.placeholders.location}
               value={location}
               onChange={(event) => setLocation(event.target.value)}
             />
           </label>
 
           <label className={styles.field}>
-            <span>Asset tag</span>
+            <span>{copy.fields.assetTag}</span>
             <input
               type="text"
-              placeholder="PC-1042"
+              placeholder={copy.placeholders.assetTag}
               value={assetTag}
               onChange={(event) => setAssetTag(event.target.value)}
             />
           </label>
 
           <label className={styles.field}>
-            <span>Attachments</span>
+            <span>{copy.fields.attachments}</span>
             <input
               type="file"
               accept=".png,.jpg,.jpeg,.heic,.heif,.pdf,image/png,image/jpeg,image/heic,image/heif,application/pdf"
               multiple
               onChange={handleFilesSelected}
             />
-            <small>
-              Optional. Add screenshots, photos, or PDFs up to 10 MB each.
-            </small>
+            <small>{copy.attachmentHint}</small>
           </label>
         </div>
 
         <label className={styles.field}>
-          <span>Description</span>
+          <span>{copy.fields.description}</span>
           <textarea
-            placeholder="Describe what is happening, what you tried, and when it started."
+            placeholder={copy.placeholders.description}
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             rows={8}
@@ -246,11 +248,8 @@ export function CreateTicketForm({ categories }: CreateTicketFormProps) {
 
         {createdTicketNumber ? (
           <div className={styles.recoveryCard}>
-            <p className={styles.recoveryLabel}>Ticket created</p>
-            <p className={styles.recoveryCopy}>
-              The request is already in the system. Continue from the detail
-              page instead of submitting the form again.
-            </p>
+            <p className={styles.recoveryLabel}>{copy.createdLabel}</p>
+            <p className={styles.recoveryCopy}>{copy.createdCopy}</p>
             <div className={styles.recoveryActions}>
               <Link
                 href={`/tickets/${createdTicketNumber}`}
@@ -264,7 +263,7 @@ export function CreateTicketForm({ categories }: CreateTicketFormProps) {
 
         <div className={styles.actions}>
           <button type="submit" disabled={disabled}>
-            {isSubmitting ? "Creating ticket..." : "Create ticket"}
+            {isSubmitting ? copy.creating : copy.create}
           </button>
         </div>
       </form>

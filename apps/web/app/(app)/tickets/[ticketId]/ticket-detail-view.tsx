@@ -1,6 +1,14 @@
 import Link from "next/link";
 
 import { toBackendAssetUrl } from "@/lib/backend";
+import {
+  formatDateTime,
+  interpolate,
+  translateRole,
+  translateStatus,
+  type AppDictionary,
+  type Locale
+} from "@/lib/i18n";
 import type { TicketAttachmentItem, TicketCommentItem, TicketDetail, TicketStatusHistoryItem } from "@/lib/tickets";
 
 import { TicketStaffActions } from "./ticket-staff-actions";
@@ -8,6 +16,11 @@ import { TicketAttachmentForm } from "./ticket-attachment-form";
 import styles from "./ticket-detail-view.module.css";
 
 interface TicketDetailViewProps {
+  locale: Locale;
+  detailCopy: AppDictionary["tickets"]["detail"];
+  attachmentCopy: AppDictionary["tickets"]["attachmentForm"];
+  staffActionsCopy: AppDictionary["tickets"]["staffActions"];
+  commonCopy: AppDictionary["common"];
   ticket: TicketDetail;
   currentUserRole?: "requester" | "technician" | "admin";
   assignableUsers?: ReadonlyArray<{
@@ -18,25 +31,6 @@ interface TicketDetailViewProps {
   }>;
   backHref?: string;
   backLabel?: string;
-}
-
-function formatStatus(status: string) {
-  return status
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function formatDateTime(value: string | null) {
-  if (!value) {
-    return "Not set";
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  }).format(new Date(value));
 }
 
 function formatFileSize(value: number) {
@@ -56,49 +50,65 @@ function formatFileSize(value: number) {
   return `${size.toFixed(size >= 10 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
-function renderComment(comment: TicketCommentItem) {
+function renderComment(
+  comment: TicketCommentItem,
+  locale: Locale
+) {
   return (
     <article key={comment.id} className={styles.timelineCard}>
       <div className={styles.timelineHeader}>
         <div>
           <p>{comment.author.fullName}</p>
-          <span>{comment.author.role.toLowerCase()}</span>
+          <span>{translateRole(locale, comment.author.role)}</span>
         </div>
-        <time>{formatDateTime(comment.createdAt)}</time>
+        <time>{formatDateTime(locale, comment.createdAt)}</time>
       </div>
-      <p className={styles.timelineType}>{formatStatus(comment.type)}</p>
+      <p className={styles.timelineType}>{translateStatus(locale, comment.type)}</p>
       <p className={styles.timelineBody}>{comment.body}</p>
     </article>
   );
 }
 
-function renderHistoryEntry(entry: TicketStatusHistoryItem) {
+function renderHistoryEntry(
+  entry: TicketStatusHistoryItem,
+  locale: Locale,
+  copy: AppDictionary["tickets"]["detail"]
+) {
   return (
     <article key={entry.id} className={styles.timelineCard}>
       <div className={styles.timelineHeader}>
         <div>
-          <p>{formatStatus(entry.toStatus)}</p>
+          <p>{translateStatus(locale, entry.toStatus)}</p>
           <span>{entry.changedBy.fullName}</span>
         </div>
-        <time>{formatDateTime(entry.createdAt)}</time>
+        <time>{formatDateTime(locale, entry.createdAt)}</time>
       </div>
       <p className={styles.timelineBody}>
         {entry.fromStatus
-          ? `Moved from ${formatStatus(entry.fromStatus)} to ${formatStatus(entry.toStatus)}.`
-          : `Moved to ${formatStatus(entry.toStatus)}.`}
+          ? interpolate(copy.movedFromTo, {
+              from: translateStatus(locale, entry.fromStatus),
+              to: translateStatus(locale, entry.toStatus)
+            })
+          : interpolate(copy.movedTo, {
+              to: translateStatus(locale, entry.toStatus)
+            })}
       </p>
       {entry.note ? <p className={styles.historyNote}>{entry.note}</p> : null}
     </article>
   );
 }
 
-function renderAttachment(attachment: TicketAttachmentItem) {
+function renderAttachment(
+  attachment: TicketAttachmentItem,
+  commonCopy: AppDictionary["common"],
+  detailCopy: AppDictionary["tickets"]["detail"]
+) {
   return (
     <article key={attachment.id} className={styles.attachmentCard}>
       <div>
         <p>{attachment.fileName}</p>
         <span>
-          {formatFileSize(attachment.fileSize)} · Uploaded by{" "}
+          {formatFileSize(attachment.fileSize)} · {detailCopy.uploadedBy}{" "}
           {attachment.uploadedBy.fullName}
         </span>
       </div>
@@ -107,19 +117,26 @@ function renderAttachment(attachment: TicketAttachmentItem) {
         target="_blank"
         rel="noreferrer"
       >
-        Open file
+        {commonCopy.openFile}
       </a>
     </article>
   );
 }
 
 export function TicketDetailView({
+  locale,
+  detailCopy,
+  attachmentCopy,
+  staffActionsCopy,
+  commonCopy,
   ticket,
   currentUserRole,
   assignableUsers,
   backHref = "/tickets",
   backLabel = "Back to my tickets"
 }: TicketDetailViewProps) {
+  const copy = detailCopy;
+
   return (
     <div className={styles.shell}>
       <header className={styles.hero}>
@@ -131,45 +148,46 @@ export function TicketDetailView({
         </div>
 
         <div className={styles.heroCopy}>
-          <p className={styles.kicker}>Ticket detail</p>
+          <p className={styles.kicker}>{copy.kicker}</p>
           <h1>{ticket.title}</h1>
-          <p className={styles.heroDescription}>
-            Keep the issue, supporting evidence, and the conversation in one
-            place so the next action is obvious on both desktop and mobile.
-          </p>
         </div>
 
-        <div className={styles.heroMeta}>
-          <span className={styles.badge}>{formatStatus(ticket.status)}</span>
-          <span className={styles.badge}>{formatStatus(ticket.priority)}</span>
-        </div>
-
-        <dl className={styles.heroFacts}>
+        <dl className={styles.summaryStrip}>
           <div>
-            <dt>Requester</dt>
-            <dd>{ticket.requester.fullName}</dd>
+            <dt>{copy.facts.assigned}</dt>
+            <dd>{ticket.assignedTo?.fullName ?? commonCopy.notAssigned}</dd>
           </div>
           <div>
-            <dt>Assigned</dt>
-            <dd>{ticket.assignedTo?.fullName ?? "Unassigned"}</dd>
+            <dt>{copy.fields.priority}</dt>
+            <dd>{translateStatus(locale, ticket.priority)}</dd>
           </div>
           <div>
-            <dt>Category</dt>
-            <dd>{ticket.category.name}</dd>
+            <dt>{copy.facts.updated}</dt>
+            <dd>{formatDateTime(locale, ticket.updatedAt)}</dd>
           </div>
           <div>
-            <dt>Updated</dt>
-            <dd>{formatDateTime(ticket.updatedAt)}</dd>
+            <dt>{copy.facts.status}</dt>
+            <dd>{translateStatus(locale, ticket.status)}</dd>
           </div>
         </dl>
       </header>
+
+      <div className={styles.staffActionsWrap}>
+        <TicketStaffActions
+          locale={locale}
+          copy={staffActionsCopy}
+          ticket={ticket}
+          currentUserRole={currentUserRole}
+          assignableUsers={assignableUsers}
+        />
+      </div>
 
       <div className={styles.mobilePriority}>
         <section className={styles.panel}>
           <div className={styles.sectionHeader}>
             <div>
-              <p className={styles.sectionLabel}>Issue summary</p>
-              <h2>What is happening</h2>
+              <p className={styles.sectionLabel}>{copy.summaryLabel}</p>
+              <h2>{copy.summaryTitle}</h2>
             </div>
           </div>
 
@@ -177,7 +195,7 @@ export function TicketDetailView({
 
           {ticket.resolutionSummary ? (
             <div className={styles.callout}>
-              <p className={styles.sectionLabel}>Resolution summary</p>
+              <p className={styles.sectionLabel}>{copy.resolutionSummary}</p>
               <p>{ticket.resolutionSummary}</p>
             </div>
           ) : null}
@@ -186,114 +204,95 @@ export function TicketDetailView({
         <section className={styles.panel}>
           <div className={styles.sectionHeader}>
             <div>
-              <p className={styles.sectionLabel}>Request context</p>
-              <h2>Key details</h2>
+              <p className={styles.sectionLabel}>{copy.contextLabel}</p>
+              <h2>{copy.contextTitle}</h2>
             </div>
           </div>
 
           <dl className={styles.metaList}>
             <div>
-              <dt>Requester</dt>
+              <dt>{copy.facts.requester}</dt>
               <dd>{ticket.requester.fullName}</dd>
             </div>
             <div>
-              <dt>Category</dt>
+              <dt>{copy.facts.category}</dt>
               <dd>{ticket.category.name}</dd>
             </div>
             <div>
-              <dt>Priority</dt>
-              <dd>{formatStatus(ticket.priority)}</dd>
+              <dt>{copy.fields.created}</dt>
+              <dd>{formatDateTime(locale, ticket.createdAt)}</dd>
             </div>
             <div>
-              <dt>Created</dt>
-              <dd>{formatDateTime(ticket.createdAt)}</dd>
+              <dt>{copy.fields.location}</dt>
+              <dd>{ticket.location ?? commonCopy.notProvided}</dd>
             </div>
             <div>
-              <dt>Updated</dt>
-              <dd>{formatDateTime(ticket.updatedAt)}</dd>
-            </div>
-            <div>
-              <dt>Assigned to</dt>
-              <dd>{ticket.assignedTo?.fullName ?? "Not assigned"}</dd>
-            </div>
-            <div>
-              <dt>Location</dt>
-              <dd>{ticket.location ?? "Not provided"}</dd>
-            </div>
-            <div>
-              <dt>Asset tag</dt>
-              <dd>{ticket.assetTag ?? "Not provided"}</dd>
+              <dt>{copy.fields.assetTag}</dt>
+              <dd>{ticket.assetTag ?? commonCopy.notProvided}</dd>
             </div>
           </dl>
         </section>
       </div>
 
-      <div className={styles.staffActionsWrap}>
-        <TicketStaffActions
-          ticket={ticket}
-          currentUserRole={currentUserRole}
-          assignableUsers={assignableUsers}
-        />
-      </div>
-
       <section className={styles.panel}>
         <div className={styles.sectionHeader}>
           <div>
-            <p className={styles.sectionLabel}>Evidence</p>
-            <h2>Attachments</h2>
+            <p className={styles.sectionLabel}>{copy.evidenceLabel}</p>
+            <h2>{copy.evidenceTitle}</h2>
           </div>
         </div>
 
         {ticket.attachments.length > 0 ? (
           <div className={styles.attachmentList}>
-            {ticket.attachments.map(renderAttachment)}
+            {ticket.attachments.map((attachment) =>
+              renderAttachment(attachment, commonCopy, copy)
+            )}
           </div>
         ) : (
-          <p className={styles.emptyState}>
-            No attachments have been added to this ticket yet.
-          </p>
+          <p className={styles.emptyState}>{copy.noAttachments}</p>
         )}
 
-        <TicketAttachmentForm ticketIdentifier={ticket.ticketNumber} />
+        <TicketAttachmentForm
+          locale={locale}
+          copy={attachmentCopy}
+          ticketIdentifier={ticket.ticketNumber}
+        />
       </section>
 
       <div className={styles.timelineGrid}>
         <section className={styles.panel}>
           <div className={styles.sectionHeader}>
             <div>
-              <p className={styles.sectionLabel}>Conversation</p>
-              <h2>Comments</h2>
+              <p className={styles.sectionLabel}>{copy.conversationLabel}</p>
+              <h2>{copy.commentsTitle}</h2>
             </div>
           </div>
 
           {ticket.comments.length > 0 ? (
             <div className={styles.timelineList}>
-              {ticket.comments.map(renderComment)}
+              {ticket.comments.map((comment) => renderComment(comment, locale))}
             </div>
           ) : (
-            <p className={styles.emptyState}>
-              No public comments yet. Add one below if you need to give the IT
-              team more context.
-            </p>
+            <p className={styles.emptyState}>{copy.noComments}</p>
           )}
         </section>
 
         <section className={styles.panel}>
           <div className={styles.sectionHeader}>
             <div>
-              <p className={styles.sectionLabel}>Audit trail</p>
-              <h2>Status history</h2>
+              <p className={styles.sectionLabel}>{copy.historyLabel}</p>
+              <h2>{copy.historyTitle}</h2>
             </div>
           </div>
 
           {ticket.statusHistory.length > 0 ? (
             <div className={styles.timelineList}>
-              {ticket.statusHistory.map(renderHistoryEntry)}
+              {ticket.statusHistory.map((entry) =>
+                renderHistoryEntry(entry, locale, copy)
+              )}
             </div>
           ) : (
-            <p className={styles.emptyState}>
-              No status transitions have been recorded yet.
-            </p>
+            <p className={styles.emptyState}>{copy.noHistory}</p>
           )}
         </section>
       </div>

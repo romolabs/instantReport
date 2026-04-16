@@ -1,0 +1,43 @@
+.switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.options {
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+}
+
+.option,
+.optionActive {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--muted-strong);
+  cursor: pointer;
+}
+
+.optionActive {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.option:disabled,
+.optionActive:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}

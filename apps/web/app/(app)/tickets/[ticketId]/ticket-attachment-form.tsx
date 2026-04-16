@@ -3,9 +3,13 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
+import type { AppDictionary, Locale } from "@/lib/i18n";
+
 import styles from "./ticket-attachment-form.module.css";
 
 interface TicketAttachmentFormProps {
+  locale: Locale;
+  copy: AppDictionary["tickets"]["attachmentForm"];
   ticketIdentifier: string;
   title?: string;
   description?: string;
@@ -29,9 +33,10 @@ function formatFileSize(value: number) {
 }
 
 export function TicketAttachmentForm({
+  copy,
   ticketIdentifier,
-  title = "Add evidence",
-  description = "Upload one or more images or a PDF so the ticket keeps a clear record of what was seen."
+  title = copy.title,
+  description = copy.description
 }: TicketAttachmentFormProps) {
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
@@ -73,18 +78,21 @@ export function TicketAttachmentForm({
           | null;
 
         if (!response.ok) {
-          throw new Error(payload?.message ?? `Unable to upload ${file.name}.`);
+          throw new Error(
+            payload?.message ??
+              copy.error.singleFile.replace("{file}", file.name)
+          );
         }
       }
 
       setFiles([]);
-      setSuccess("Attachment upload complete.");
+      setSuccess(copy.success);
       router.refresh();
     } catch (uploadError) {
       setError(
         uploadError instanceof Error
           ? uploadError.message
-          : "Unable to upload attachments right now."
+          : copy.error.upload
       );
     } finally {
       setIsSubmitting(false);
@@ -95,23 +103,21 @@ export function TicketAttachmentForm({
     <section className={styles.surface}>
       <div className={styles.header}>
         <div>
-          <p className={styles.kicker}>Attachments</p>
+          <p className={styles.kicker}>{copy.kicker}</p>
           <h3>{title}</h3>
           <p className={styles.description}>{description}</p>
         </div>
 
         <div className={styles.fileHint}>
-          <span>Accepted</span>
-          <strong>Images and PDFs</strong>
+          <span>{copy.accepted}</span>
+          <strong>{copy.acceptedValue}</strong>
         </div>
       </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <label className={styles.dropzone}>
-          <span className={styles.dropzoneTitle}>Choose files</span>
-          <span className={styles.dropzoneBody}>
-            PNG, JPG, JPEG, HEIC, HEIF, or PDF. Select one or many at once.
-          </span>
+          <span className={styles.dropzoneTitle}>{copy.chooseFiles}</span>
+          <span className={styles.dropzoneBody}>{copy.chooseFilesHint}</span>
           <input
             type="file"
             multiple
@@ -128,7 +134,7 @@ export function TicketAttachmentForm({
         {files.length > 0 ? (
           <div className={styles.preview}>
             <div className={styles.previewHeader}>
-              <p>Selected files</p>
+              <p>{copy.selectedFiles}</p>
               <span>
                 {files.length} file{files.length === 1 ? "" : "s"} ·{" "}
                 {formatFileSize(totalSize)}
@@ -142,7 +148,7 @@ export function TicketAttachmentForm({
                     <strong>{file.name}</strong>
                     <span>{formatFileSize(file.size)}</span>
                   </div>
-                  <span>{file.type || "Unknown type"}</span>
+                  <span>{file.type || copy.unknownType}</span>
                 </li>
               ))}
             </ul>
@@ -153,17 +159,14 @@ export function TicketAttachmentForm({
         {success ? <p className={styles.success}>{success}</p> : null}
 
         <div className={styles.actions}>
-          <p className={styles.helper}>
-            Files upload one by one so each attachment can show the first server
-            error clearly.
-          </p>
+          <p className={styles.helper}>{copy.helper}</p>
 
           <button
             type="submit"
             disabled={isSubmitting || files.length === 0}
             className={styles.button}
           >
-            {isSubmitting ? "Uploading..." : "Upload attachments"}
+            {isSubmitting ? copy.uploading : copy.upload}
           </button>
         </div>
       </form>

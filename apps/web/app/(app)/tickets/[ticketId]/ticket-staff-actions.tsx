@@ -3,6 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 
+import type { AppDictionary, Locale } from "@/lib/i18n";
+import {
+  formatDateTime,
+  interpolate,
+  translateRole,
+  translateStatus
+} from "@/lib/i18n";
 import type { TicketDetail } from "@/lib/tickets";
 
 import styles from "./ticket-staff-actions.module.css";
@@ -18,6 +25,8 @@ interface AssignableUser {
 }
 
 interface TicketStaffActionsProps {
+  locale: Locale;
+  copy: AppDictionary["tickets"]["staffActions"];
   ticket: TicketDetail;
   currentUserRole?: StaffRole;
   assignableUsers?: ReadonlyArray<AssignableUser>;
@@ -31,33 +40,6 @@ const workflowOptions: readonly TicketStatus[] = [
 ] as const;
 
 const closeoutOptions: readonly TicketStatus[] = ["RESOLVED", "CLOSED"] as const;
-
-function formatStatus(status: string) {
-  return status
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function formatRole(role?: string) {
-  if (!role) {
-    return "Staff";
-  }
-
-  return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
-}
-
-function formatDateTime(value: string | null) {
-  if (!value) {
-    return "Not set";
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  }).format(new Date(value));
-}
 
 function FieldShell({
   eyebrow,
@@ -85,6 +67,8 @@ function FieldShell({
 }
 
 export function TicketStaffActions({
+  locale,
+  copy,
   ticket,
   currentUserRole,
   assignableUsers = []
@@ -136,29 +120,37 @@ export function TicketStaffActions({
   }
 
   const assignmentEyebrow =
-    currentUserRole === "admin" ? "Assignment" : "Ownership";
+    currentUserRole === "admin"
+      ? copy.assignment.eyebrowAdmin
+      : copy.assignment.eyebrowTechnician;
   const assignmentTitle =
-    currentUserRole === "admin" ? "Route the ticket" : "Take ownership";
+    currentUserRole === "admin"
+      ? copy.assignment.titleAdmin
+      : copy.assignment.titleTechnician;
   const assignmentDescription =
     currentUserRole === "admin"
-      ? "Pick the current owner and capture a short handoff note."
-      : "Claim this ticket for yourself and capture a short handoff note.";
+      ? copy.assignment.descriptionAdmin
+      : copy.assignment.descriptionTechnician;
   const assignmentSelectLabel =
-    currentUserRole === "admin" ? "Assign to" : "Owner";
+    currentUserRole === "admin"
+      ? copy.assignment.labelAdmin
+      : copy.assignment.labelTechnician;
   const assignmentEmptyOption =
     assignableUsers.length === 0
-      ? "No assignable users supplied"
+      ? copy.assignment.emptyNone
       : currentUserRole === "admin"
-        ? "Choose a technician or admin"
-        : "Assign this ticket to me";
+        ? copy.assignment.emptyAdmin
+        : copy.assignment.emptyTechnician;
   const assignmentHelperText =
     ticket.status === "RESOLVED" || ticket.status === "CLOSED"
-      ? "Resolved and closed tickets must be reopened before ownership can change."
+      ? copy.assignment.helperClosed
       : currentUserRole === "admin"
-        ? "Assignment moves ownership without losing the existing history."
-        : "Technicians can claim tickets for themselves while admins can route them across the team.";
+        ? copy.assignment.helperAdmin
+        : copy.assignment.helperTechnician;
   const assignmentButtonLabel =
-    currentUserRole === "admin" ? "Save assignment" : "Claim ticket";
+    currentUserRole === "admin"
+      ? copy.assignment.saveAdmin
+      : copy.assignment.saveTechnician;
 
   async function handleAssignmentSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -190,14 +182,14 @@ export function TicketStaffActions({
         | null;
 
       if (!response.ok) {
-        setAssignError(payload?.message ?? "Unable to assign the ticket.");
+        setAssignError(payload?.message ?? copy.assignment.assignError);
         return;
       }
 
       setAssignmentNote("");
       router.refresh();
     } catch {
-      setAssignError("Unable to reach the server right now.");
+      setAssignError(copy.assignment.serverError);
     } finally {
       setAssignmentBusy(false);
     }
@@ -234,7 +226,7 @@ export function TicketStaffActions({
         | null;
 
       if (!response.ok) {
-        setStatusError(payload?.message ?? "Unable to update workflow status.");
+        setStatusError(payload?.message ?? copy.lifecycle.error);
         return;
       }
 
@@ -242,7 +234,7 @@ export function TicketStaffActions({
       setStatusReopenReason("");
       router.refresh();
     } catch {
-      setStatusError("Unable to reach the server right now.");
+      setStatusError(copy.lifecycle.serverError);
     } finally {
       setStatusBusy(false);
     }
@@ -282,7 +274,7 @@ export function TicketStaffActions({
         | null;
 
       if (!response.ok) {
-        setCloseoutError(payload?.message ?? "Unable to save the close-out details.");
+        setCloseoutError(payload?.message ?? copy.closeout.error);
         return;
       }
 
@@ -290,7 +282,7 @@ export function TicketStaffActions({
       setResolutionReopenReason("");
       router.refresh();
     } catch {
-      setCloseoutError("Unable to reach the server right now.");
+      setCloseoutError(copy.closeout.serverError);
     } finally {
       setResolutionBusy(false);
     }
@@ -300,35 +292,36 @@ export function TicketStaffActions({
     <section className={styles.surface}>
       <header className={styles.header}>
         <div>
-          <p className={styles.kicker}>Staff console</p>
-          <h2>Technician and admin actions</h2>
-          <p className={styles.intro}>
-            Keep assignment, status changes, and closeout notes close to the
-            ticket so the audit trail stays clean.
-          </p>
+          <p className={styles.kicker}>{copy.headerKicker}</p>
+          <h2>{copy.headerTitle}</h2>
+          <p className={styles.intro}>{copy.headerCopy}</p>
         </div>
 
         <div className={styles.roleBadge}>
-          <span>{formatRole(currentUserRole)} access</span>
-          <strong>{formatStatus(ticket.status)}</strong>
+          <span>
+            {interpolate(copy.access, {
+              role: translateRole(locale, currentUserRole)
+            })}
+          </span>
+          <strong>{translateStatus(locale, ticket.status)}</strong>
         </div>
       </header>
 
       <dl className={styles.miniStats}>
         <div>
-          <dt>Owner</dt>
-          <dd>{ticket.assignedTo?.fullName ?? "Unassigned"}</dd>
+          <dt>{copy.stats.owner}</dt>
+          <dd>{ticket.assignedTo?.fullName ?? "—"}</dd>
         </div>
         <div>
-          <dt>Updated</dt>
-          <dd>{formatDateTime(ticket.updatedAt)}</dd>
+          <dt>{copy.stats.updated}</dt>
+          <dd>{formatDateTime(locale, ticket.updatedAt)}</dd>
         </div>
         <div>
-          <dt>Comments</dt>
+          <dt>{copy.stats.comments}</dt>
           <dd>{ticket._count.comments}</dd>
         </div>
         <div>
-          <dt>Evidence</dt>
+          <dt>{copy.stats.evidence}</dt>
           <dd>{ticket._count.attachments}</dd>
         </div>
       </dl>
@@ -349,19 +342,19 @@ export function TicketStaffActions({
               >
                 <option value="">{assignmentEmptyOption}</option>
                 {assignableUsers.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.fullName} - {formatRole(user.role)}
+                <option key={user.id} value={user.id}>
+                    {user.fullName} - {translateRole(locale, user.role)}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className={styles.field}>
-              <span>Handoff note</span>
+              <span>{copy.assignment.handoffNote}</span>
               <textarea
                 value={assignmentNote}
                 onChange={(event) => setAssignmentNote(event.target.value)}
-                placeholder="Optional context for the next technician."
+                placeholder={copy.assignment.handoffPlaceholder}
                 rows={4}
               />
             </label>
@@ -375,16 +368,16 @@ export function TicketStaffActions({
                 disabled={assignmentBusy || !canAssign}
                 className={styles.primaryButton}
               >
-                {assignmentBusy ? "Saving assignment..." : assignmentButtonLabel}
+                {assignmentBusy ? copy.assignment.saving : assignmentButtonLabel}
               </button>
             </div>
           </form>
         </FieldShell>
 
         <FieldShell
-          eyebrow="Lifecycle"
-          title="Advance the status"
-          description="Move the ticket through active work, waiting states, or a clean reopen."
+          eyebrow={copy.lifecycle.eyebrow}
+          title={copy.lifecycle.title}
+          description={copy.lifecycle.description}
         >
           <form className={styles.form} onSubmit={handleStatusSubmit}>
             <div className={styles.statusChips} role="list" aria-label="Status options">
@@ -398,29 +391,29 @@ export function TicketStaffActions({
                     className={active ? styles.statusChipActive : styles.statusChip}
                     onClick={() => setStatusDraft(option)}
                   >
-                    {formatStatus(option)}
+                    {translateStatus(locale, option)}
                   </button>
                 );
               })}
             </div>
 
             <label className={styles.field}>
-              <span>Status note</span>
+              <span>{copy.lifecycle.noteLabel}</span>
               <textarea
                 value={statusNote}
                 onChange={(event) => setStatusNote(event.target.value)}
-                placeholder="Capture why the status changed or what the next step is."
+                placeholder={copy.lifecycle.notePlaceholder}
                 rows={4}
               />
             </label>
 
             {isTerminal ? (
               <label className={styles.field}>
-                <span>Reopen reason</span>
+                <span>{copy.lifecycle.reopenReason}</span>
                 <textarea
                   value={statusReopenReason}
                   onChange={(event) => setStatusReopenReason(event.target.value)}
-                  placeholder="Required if this resolved or closed ticket is moving back into active work."
+                  placeholder={copy.lifecycle.reopenPlaceholder}
                   rows={3}
                 />
               </label>
@@ -430,7 +423,9 @@ export function TicketStaffActions({
 
             <div className={styles.formFooter}>
               <p className={styles.helperText}>
-                The selected state is {formatStatus(statusDraft)}.
+                {interpolate(copy.lifecycle.helper, {
+                  status: translateStatus(locale, statusDraft)
+                })}
               </p>
               <button
                 type="submit"
@@ -441,21 +436,21 @@ export function TicketStaffActions({
                 }
                 className={styles.primaryButton}
               >
-                {statusBusy ? "Saving status..." : "Save status"}
+                {statusBusy ? copy.lifecycle.saving : copy.lifecycle.save}
               </button>
             </div>
           </form>
         </FieldShell>
 
         <FieldShell
-          eyebrow="Close-out"
-          title="Write the resolution"
-          description="Capture the final fix before marking the ticket resolved or closed."
+          eyebrow={copy.closeout.eyebrow}
+          title={copy.closeout.title}
+          description={copy.closeout.description}
         >
           <form className={styles.form} onSubmit={handleResolutionSubmit}>
             <div className={styles.compactGrid}>
               <label className={styles.field}>
-                <span>Close-out target</span>
+                <span>{copy.closeout.target}</span>
                 <select
                   value={closeoutStatus}
                   onChange={(event) =>
@@ -464,45 +459,45 @@ export function TicketStaffActions({
                 >
                   {closeoutOptions.map((option) => (
                     <option key={option} value={option}>
-                      {formatStatus(option)}
+                      {translateStatus(locale, option)}
                     </option>
                   ))}
                 </select>
               </label>
 
               <div className={styles.helperTile}>
-                <span>Current state</span>
-                <strong>{formatStatus(ticket.status)}</strong>
+                <span>{copy.closeout.currentState}</span>
+                <strong>{translateStatus(locale, ticket.status)}</strong>
               </div>
             </div>
 
             <label className={styles.field}>
-              <span>Resolution summary</span>
+              <span>{copy.closeout.resolutionSummary}</span>
               <textarea
                 value={resolutionSummary}
                 onChange={(event) => setResolutionSummary(event.target.value)}
-                placeholder="Summarize the fix in language the requester can understand."
+                placeholder={copy.closeout.resolutionPlaceholder}
                 rows={4}
               />
             </label>
 
             <label className={styles.field}>
-              <span>Close-out note</span>
+              <span>{copy.closeout.closeoutNote}</span>
               <textarea
                 value={resolutionNote}
                 onChange={(event) => setResolutionNote(event.target.value)}
-                placeholder="Optional internal context for the audit trail."
+                placeholder={copy.closeout.closeoutPlaceholder}
                 rows={3}
               />
             </label>
 
             {isReopeningClosedTicket ? (
               <label className={styles.field}>
-                <span>Reopen reason</span>
+                <span>{copy.closeout.reopenReason}</span>
                 <textarea
                   value={resolutionReopenReason}
                   onChange={(event) => setResolutionReopenReason(event.target.value)}
-                  placeholder="Required when reopening a closed ticket into resolved work."
+                  placeholder={copy.closeout.reopenPlaceholder}
                   rows={3}
                 />
               </label>
@@ -511,16 +506,13 @@ export function TicketStaffActions({
             {closeoutError ? <p className={styles.errorText}>{closeoutError}</p> : null}
 
             <div className={styles.formFooter}>
-              <p className={styles.helperText}>
-                Closing requires a resolution summary; reopening a closed ticket
-                requires a reopen reason.
-              </p>
+              <p className={styles.helperText}>{copy.closeout.helper}</p>
               <button
                 type="submit"
                 disabled={resolutionBusy || !canSaveCloseout}
                 className={styles.primaryButton}
               >
-                {resolutionBusy ? "Saving close-out..." : "Save close-out"}
+                {resolutionBusy ? copy.closeout.saving : copy.closeout.save}
               </button>
             </div>
           </form>

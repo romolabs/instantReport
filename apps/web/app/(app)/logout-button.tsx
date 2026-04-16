@@ -5,7 +5,15 @@ import { useState } from "react";
 
 import styles from "./shell.module.css";
 
-export function LogoutButton() {
+interface LogoutButtonProps {
+  signOutLabel: string;
+  signingOutLabel: string;
+}
+
+export function LogoutButton({
+  signOutLabel,
+  signingOutLabel
+}: LogoutButtonProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,7 +38,7 @@ export function LogoutButton() {
       onClick={handleLogout}
       disabled={isSubmitting}
     >
-      {isSubmitting ? "Signing out..." : "Sign out"}
+      {isSubmitting ? signingOutLabel : signOutLabel}
     </button>
   );
 }

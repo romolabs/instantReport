@@ -3,9 +3,15 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 
+import type { AppDictionary } from "@/lib/i18n";
+
 import styles from "./login.module.css";
 
-export function LoginForm() {
+interface LoginFormProps {
+  copy: AppDictionary["auth"]["login"];
+}
+
+export function LoginForm({ copy }: LoginFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -55,20 +61,20 @@ export function LoginForm() {
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <label>
-        <span>Email</span>
+        <span>{copy.emailLabel}</span>
         <input
           type="email"
-          placeholder="name@company.com"
+          placeholder={copy.emailPlaceholder}
           autoComplete="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
       </label>
       <label>
-        <span>Password</span>
+        <span>{copy.passwordLabel}</span>
         <input
           type="password"
-          placeholder="••••••••"
+          placeholder={copy.passwordPlaceholder}
           autoComplete="current-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
@@ -78,7 +84,7 @@ export function LoginForm() {
       {error ? <p className={styles.errorMessage}>{error}</p> : null}
 
       <button type="submit" disabled={disabled}>
-        {isSubmitting ? "Signing in..." : "Sign in"}
+        {isSubmitting ? copy.submitting : copy.submit}
       </button>
     </form>
   );

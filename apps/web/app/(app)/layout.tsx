@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { isStaffRole, requireAuthenticatedUser } from "@/lib/auth";
+import { LanguageSwitcher } from "@/app/_components/language-switcher";
+import { getDictionary, translateRole } from "@/lib/i18n";
+import { getCurrentLocale } from "@/lib/i18n-server";
 
 import { LogoutButton } from "./logout-button";
 import styles from "./shell.module.css";
@@ -10,16 +13,18 @@ export default async function AppLayout({
   children: React.ReactNode;
 }>) {
   const user = await requireAuthenticatedUser();
+  const locale = await getCurrentLocale();
+  const dictionary = getDictionary(locale);
   const navItems = [
-    { href: "/tickets", label: "My tickets" },
-    { href: "/tickets/new", label: "Create ticket" },
+    { href: "/tickets", label: dictionary.appShell.nav.tickets },
+    { href: "/tickets/new", label: dictionary.appShell.nav.newTicket },
     ...(isStaffRole(user.role)
-      ? [{ href: "/admin/tickets", label: "All tickets" }]
+      ? [{ href: "/admin/tickets", label: dictionary.appShell.nav.allTickets }]
       : []),
     ...(user.role === "ADMIN"
       ? [
-          { href: "/admin/users", label: "Users" },
-          { href: "/admin/categories", label: "Categories" }
+          { href: "/admin/users", label: dictionary.appShell.nav.users },
+          { href: "/admin/categories", label: dictionary.appShell.nav.categories }
         ]
       : [])
   ];
@@ -28,11 +33,17 @@ export default async function AppLayout({
     <div className={styles.appShell}>
       <aside className={styles.sidebar}>
         <div>
-          <p className={styles.brand}>InstantReport</p>
-          <h1>Support operations</h1>
+          <div className={styles.topMeta}>
+            <p className={styles.brand}>{dictionary.common.appName}</p>
+            <LanguageSwitcher
+              locale={locale}
+              label={dictionary.common.languageLabel}
+              options={dictionary.common.languageOptions}
+            />
+          </div>
+          <h1>{dictionary.appShell.title}</h1>
           <p className={styles.sidebarCopy}>
-            Internal help desk scaffold for intake, triage, resolution, and
-            ISO-friendly audit trails.
+            {dictionary.appShell.subtitle}
           </p>
         </div>
 
@@ -49,10 +60,13 @@ export default async function AppLayout({
             <span className={styles.statusDot} />
             <div className={styles.identityText}>
               <span>{user.fullName}</span>
-              <small>{user.role.toLowerCase()}</small>
+              <small>{translateRole(locale, user.role)}</small>
             </div>
           </div>
-          <LogoutButton />
+          <LogoutButton
+            signOutLabel={dictionary.appShell.logout}
+            signingOutLabel={dictionary.appShell.loggingOut}
+          />
         </div>
       </aside>
 

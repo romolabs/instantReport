@@ -1,15 +1,15 @@
 .shell {
   display: grid;
-  gap: 24px;
+  gap: 18px;
 }
 
 .hero {
   display: grid;
-  gap: 20px;
-  padding: 28px;
-  border-radius: 28px;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 24px;
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(18, 26, 51, 0.94), rgba(10, 15, 28, 0.88));
+  background: var(--panel);
   box-shadow: var(--shadow);
 }
 
@@ -22,16 +22,17 @@
 
 .heroCopy {
   display: grid;
-  gap: 8px;
+  gap: 4px;
 }
 
 .kicker,
 .sectionLabel {
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   font-size: 0.74rem;
   color: var(--accent-2);
+  font-weight: 700;
 }
 
 .hero h1,
@@ -40,16 +41,9 @@
 }
 
 .hero h1 {
-  font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(2.2rem, 4vw, 4rem);
-  line-height: 0.95;
-}
-
-.heroDescription {
-  margin: 6px 0 0;
-  max-width: 62ch;
-  color: var(--muted);
-  line-height: 1.6;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
 }
 
 .ticketNumber {
@@ -60,50 +54,45 @@
   letter-spacing: 0.08em;
 }
 
-.heroMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
 .badge,
 .backLink {
   min-height: 42px;
   padding: 0 14px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
 }
 
 .backLink {
-  color: #1a1205;
+  color: #fff;
   font-weight: 700;
-  background: linear-gradient(160deg, #f0c56f, #d89431);
+  background: var(--accent);
   border: 0;
 }
 
-.heroFacts,
+.summaryStrip,
 .mobilePriority,
 .timelineGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
-.heroFacts {
+.summaryStrip {
   margin: 0;
 }
 
-.heroFacts div {
+.summaryStrip div {
   padding: 14px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface-muted);
 }
 
-.heroFacts dt {
+.summaryStrip dt {
   margin-bottom: 6px;
   color: var(--muted);
   font-size: 0.76rem;
@@ -111,18 +100,18 @@
   letter-spacing: 0.1em;
 }
 
-.heroFacts dd {
+.summaryStrip dd {
   margin: 0;
   font-weight: 600;
 }
 
 .panel {
-  padding: 22px;
-  border-radius: 24px;
+  padding: 20px;
+  border-radius: 20px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--panel);
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .body,
@@ -136,10 +125,10 @@
 }
 
 .callout {
-  padding: 16px;
-  border-radius: 18px;
-  background: rgba(240, 197, 111, 0.08);
-  border: 1px solid rgba(240, 197, 111, 0.22);
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(31, 111, 120, 0.06);
+  border: 1px solid rgba(31, 111, 120, 0.14);
   display: grid;
   gap: 8px;
 }
@@ -154,8 +143,8 @@
 .metaList div {
   padding: 14px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
 }
 
 .metaList dt {
@@ -189,7 +178,7 @@
   padding: 16px;
   border-radius: 18px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface);
 }
 
 .attachmentCard {
@@ -245,7 +234,7 @@
   .hero,
   .heroTop,
   .mobilePriority,
-  .heroFacts,
+  .summaryStrip,
   .timelineGrid,
   .attachmentCard {
     grid-template-columns: 1fr;
@@ -253,7 +242,6 @@
     align-items: flex-start;
   }
 
-  .heroMeta,
   .metaList {
     width: 100%;
     justify-content: flex-start;
@@ -266,17 +254,13 @@
   }
 
   .hero h1 {
-    font-size: clamp(1.9rem, 8vw, 2.8rem);
-    line-height: 1.02;
+    font-size: clamp(1.7rem, 7vw, 2.2rem);
+    line-height: 1.08;
   }
 
   .backLink,
   .badge {
     min-height: 38px;
-  }
-
-  .staffActionsWrap {
-    order: 4;
   }
 }
 
@@ -295,17 +279,13 @@
     align-items: flex-start;
   }
 
-  .heroMeta {
-    gap: 8px;
-  }
-
   .badge,
   .backLink {
     width: 100%;
     justify-content: center;
   }
 
-  .heroFacts div,
+  .summaryStrip div,
   .metaList div,
   .attachmentCard,
   .timelineCard {
@@ -318,7 +298,7 @@
     justify-content: center;
     min-height: 42px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--surface-muted);
   }
 
   .timelineHeader {
