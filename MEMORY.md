@@ -212,7 +212,7 @@ The core requester-facing and admin/staff web flows are build-verified and runti
 
 What is still placeholder-only:
 
-- mobile-to-API integration
+- mobile create-ticket, detail, and attachment integration
 - deeper browser-level test coverage
 
 ## Temporary Implementation Notes
@@ -231,6 +231,19 @@ Build in this order:
 3. Add browser-level web tests for the detail-page attachment and reopen flows.
 4. Expand automated coverage for auth, tickets, and status transitions.
 5. Add richer reporting only if the current dashboard needs deeper analytics.
+
+## Mobile Progress
+
+- Flutter now has a real first vertical slice:
+  - login calls `POST /auth/login`
+  - JWT session is held in memory through `SessionController`
+  - authenticated users land in a real shell with sign out
+  - `My Tickets` loads live data from `GET /tickets`
+- Mobile API config defaults to local development hosts and supports `--dart-define=INSTANTREPORT_API_BASE_URL=...`
+- Verified locally:
+  - `cd apps/mobile && flutter analyze`
+  - `cd apps/mobile && flutter test`
+- The next mobile slice should be ticket detail, then create-ticket with category loading and submit support.
 
 ## Immediate Next Coding Target
 

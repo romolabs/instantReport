@@ -84,7 +84,11 @@ For local web + API development, run the backend on port `4000` so the Next.js a
     - internal note posting
     - status changes into active work
     - resolution close-out with summary
-- `apps/mobile` contains a Flutter scaffold with login, shell navigation, and placeholder ticket screens.
+- `apps/mobile` now has a first real vertical slice:
+  - login calls the live backend API
+  - JWT auth is stored in memory for the active session
+  - `My Tickets` loads real ticket data
+  - create-ticket and full detail actions are still the next mobile steps
 - `npm run test:api:smoke` now runs a real backend smoke test for login, ticket creation, attachment upload, assignment, reopen, and close flows against a running local API.
 
 ## Next Build Steps
@@ -92,6 +96,7 @@ For local web + API development, run the backend on port `4000` so the Next.js a
 - Add seed refinement for production bootstrap
 - Decide whether attachment storage should stay local or move to object storage later
 - Wire the Flutter client to the backend API
+- Extend the Flutter client from login + ticket list into detail and ticket creation
 - Add browser-level web tests for the detail-page attachment and reopen flows
 - Expand automated coverage beyond the API smoke harness
 

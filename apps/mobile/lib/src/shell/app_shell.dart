@@ -1,30 +1,29 @@
 import 'package:flutter/material.dart';
 
+import '../auth/session_controller.dart';
 import '../tickets/create_ticket_page.dart';
 import '../tickets/my_tickets_page.dart';
-import '../tickets/ticket_detail_page.dart';
+import '../tickets/tickets_repository.dart';
 
 class AppShell extends StatefulWidget {
-  const AppShell({super.key});
+  const AppShell({
+    required this.sessionController,
+    required this.ticketsRepository,
+    super.key,
+  });
 
-  static const routeName = '/home';
+  final SessionController sessionController;
+  final TicketsRepository ticketsRepository;
 
   @override
   State<AppShell> createState() => _AppShellState();
 }
 
 class _AppShellState extends State<AppShell> {
-  static const _pages = <Widget>[
-    MyTicketsPage(),
-    TicketDetailPage(),
-    CreateTicketPage(),
-  ];
-
-  static const _labels = <String>['My Tickets', 'Detail', 'Create'];
+  static const _labels = <String>['My Tickets', 'Create'];
 
   static const _icons = <IconData>[
     Icons.inbox_outlined,
-    Icons.receipt_long_outlined,
     Icons.add_circle_outline_rounded,
   ];
 
@@ -32,10 +31,39 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final body = IndexedStack(index: _index, children: _pages);
+    final user = widget.sessionController.session?.user;
+    final pages = <Widget>[
+      MyTicketsPage(
+        sessionController: widget.sessionController,
+        ticketsRepository: widget.ticketsRepository,
+      ),
+      const CreateTicketPage(),
+    ];
 
     return Scaffold(
-      body: SafeArea(child: body),
+      appBar: AppBar(
+        title: Text(_labels[_index]),
+        actions: [
+          if (user != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Center(
+                child: Text(
+                  user.fullName,
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+              ),
+            ),
+          IconButton(
+            onPressed: widget.sessionController.signOut,
+            tooltip: 'Sign out',
+            icon: const Icon(Icons.logout_rounded),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: IndexedStack(index: _index, children: pages),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (value) {

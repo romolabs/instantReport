@@ -1,17 +1,32 @@
-# instant_report_mobile
+# InstantReport Mobile
 
-A new Flutter project.
+Flutter client for the InstantReport help desk.
 
-## Getting Started
+## Current Slice
 
-This project is a starting point for a Flutter application.
+- real login against `POST /auth/login`
+- in-memory session state with JWT bearer auth
+- live `My Tickets` list from `GET /tickets`
+- placeholder create-ticket and detail follow-up screens
 
-A few resources to get you started if this is your first Flutter project:
+## Local Run
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+1. Start the backend API from the repo root on port `4000`.
+2. From `apps/mobile`, run `flutter pub get`.
+3. Launch with `flutter run`.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The app uses a local API default automatically:
+
+- Android emulator: `http://10.0.2.2:4000/api`
+- other local targets: `http://127.0.0.1:4000/api`
+
+Override that base URL when needed:
+
+```bash
+flutter run --dart-define=INSTANTREPORT_API_BASE_URL=http://your-host:4000/api
+```
+
+## Verification
+
+- `flutter analyze`
+- `flutter test`

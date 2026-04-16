@@ -1,12 +1,67 @@
 import 'package:flutter/material.dart';
 
-import '../shell/app_shell.dart';
+import 'session_controller.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({required this.sessionController, super.key});
+
+  final SessionController sessionController;
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController(text: 'admin@example.com');
+    _passwordController = TextEditingController(text: 'ChangeMe123!');
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Enter both email and password to continue.'),
+        ),
+      );
+      return;
+    }
+
+    final success = await widget.sessionController.signIn(
+      email: email,
+      password: password,
+    );
+
+    if (!mounted || success) {
+      return;
+    }
+
+    final error =
+        widget.sessionController.errorMessage ?? 'Unable to sign in right now.';
+    messenger.showSnackBar(SnackBar(content: Text(error)));
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = widget.sessionController.isLoading;
+    final errorText = widget.sessionController.errorMessage;
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -20,10 +75,10 @@ class LoginPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  _HeroCard(
+                  const _HeroCard(
                     title: 'InstantReport',
                     subtitle:
-                        'Sign in with your company email to submit, track, and close support tickets from anywhere.',
+                        'Sign in with your company email to submit requests, track open work, and follow ticket updates from anywhere.',
                     icon: Icons.shield_outlined,
                   ),
                   const SizedBox(height: 20),
@@ -32,24 +87,50 @@ class LoginPage extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 12),
-                  const _Field(label: 'Company email'),
+                  TextField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    enabled: !isLoading,
+                    decoration: const InputDecoration(
+                      labelText: 'Company email',
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  const _Field(label: 'Password', obscureText: true),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    enabled: !isLoading,
+                    decoration: const InputDecoration(labelText: 'Password'),
+                    onSubmitted: (_) => _submit(),
+                  ),
+                  if (errorText != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      errorText,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 18),
                   FilledButton(
-                    onPressed: () {
-                      Navigator.of(
-                        context,
-                      ).pushReplacementNamed(AppShell.routeName);
-                    },
+                    onPressed: isLoading ? null : _submit,
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(52),
                     ),
-                    child: const Text('Sign in'),
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2.4),
+                          )
+                        : const Text('Sign in'),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'MVP placeholder only. Real authentication will connect to the backend API.',
+                    'Use `--dart-define=INSTANT_REPORT_API_BASE_URL=...` if your simulator cannot reach the local API default.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -104,26 +185,11 @@ class _HeroCard extends StatelessWidget {
           Text(
             subtitle,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: scheme.onPrimary.withOpacity(0.92),
+              color: scheme.onPrimary.withValues(alpha: 0.92),
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _Field extends StatelessWidget {
-  const _Field({required this.label, this.obscureText = false});
-
-  final String label;
-  final bool obscureText;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      obscureText: obscureText,
-      decoration: InputDecoration(labelText: label),
     );
   }
 }

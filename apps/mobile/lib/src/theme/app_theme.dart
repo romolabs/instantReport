@@ -22,7 +22,9 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.45)),
+          side: BorderSide(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.45),
+          ),
         ),
         margin: EdgeInsets.zero,
       ),
