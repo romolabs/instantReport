@@ -38,9 +38,28 @@
   font-weight: 700;
 }
 
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.secondaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 160px;
+  min-height: 48px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-weight: 700;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -61,6 +80,113 @@
   font-size: 2rem;
 }
 
+.reportGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 16px;
+}
+
+.adminGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.panel {
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 18px;
+}
+
+.panelHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.sectionLabel,
+.ticketNumber {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent-2);
+  font-size: 0.74rem;
+}
+
+.panelHead h3,
+.ticketCard h4 {
+  margin: 8px 0 0;
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.inlineMeta,
+.emptyCopy,
+.ticketMeta span,
+.highlightCard span,
+.statusCard span,
+.categoryRow span {
+  color: var(--muted);
+}
+
+.statusGrid,
+.highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.statusCard,
+.highlightCard {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.statusCard strong,
+.highlightCard strong,
+.categoryRow strong {
+  color: #fff8ed;
+  font-size: 1.1rem;
+}
+
+.categoryList,
+.ticketList {
+  display: grid;
+  gap: 12px;
+}
+
+.categoryRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ticketCard {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ticketMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 @media (max-width: 780px) {
   .hero {
     flex-direction: column;
@@ -68,6 +194,13 @@
   }
 
   .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reportGrid,
+  .adminGrid,
+  .statusGrid,
+  .highlights {
     grid-template-columns: 1fr;
   }
 }
