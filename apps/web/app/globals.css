@@ -2,24 +2,27 @@
   color-scheme: light;
   --font-display: "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --font-sans: "Avenir Next", "Segoe UI", system-ui, sans-serif;
-  --bg: #f6f2ea;
-  --bg-soft: #fbf8f3;
+  --bg: #eef3f7;
+  --bg-soft: #f7fafc;
   --surface: #ffffff;
-  --surface-muted: #f5f0e7;
-  --panel: #fffdfa;
+  --surface-muted: #f1f5f8;
+  --panel: #fbfcfd;
   --panel-strong: #ffffff;
-  --line: rgba(108, 92, 65, 0.14);
-  --text: #24343b;
-  --muted: rgba(36, 52, 59, 0.66);
-  --muted-strong: rgba(36, 52, 59, 0.86);
-  --accent: #1f6f78;
-  --accent-strong: #145962;
-  --accent-soft: rgba(31, 111, 120, 0.1);
-  --accent-2: #8f6b3d;
-  --accent-2-soft: rgba(143, 107, 61, 0.1);
-  --danger: #b64848;
-  --shadow-sm: 0 10px 28px rgba(43, 38, 31, 0.06);
-  --shadow: 0 18px 42px rgba(43, 38, 31, 0.07);
+  --line: rgba(88, 104, 122, 0.16);
+  --text: #1b2a35;
+  --muted: rgba(27, 42, 53, 0.68);
+  --muted-strong: rgba(27, 42, 53, 0.84);
+  --accent: #0f5f7a;
+  --accent-strong: #0b4b62;
+  --accent-soft: rgba(15, 95, 122, 0.09);
+  --accent-2: #5e7184;
+  --accent-2-soft: rgba(94, 113, 132, 0.12);
+  --danger: #b44e4e;
+  --success: #2f7b68;
+  --success-soft: rgba(47, 123, 104, 0.1);
+  --success-line: rgba(47, 123, 104, 0.22);
+  --shadow-sm: 0 12px 30px rgba(23, 31, 38, 0.05);
+  --shadow: 0 20px 46px rgba(23, 31, 38, 0.08);
 }
 
 * {
@@ -28,7 +31,7 @@
 
 html {
   min-height: 100%;
-  background: linear-gradient(180deg, #fbf8f3 0%, #f4efe5 100%);
+  background: linear-gradient(180deg, #f9fbfc 0%, #edf2f6 100%);
 }
 
 body {
@@ -37,7 +40,8 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
+    radial-gradient(circle at top, rgba(15, 95, 122, 0.05), transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
   line-height: 1.5;
 }
 
@@ -61,5 +65,5 @@ textarea {
 }
 
 ::selection {
-  background: rgba(143, 107, 61, 0.2);
+  background: rgba(15, 95, 122, 0.18);
 }

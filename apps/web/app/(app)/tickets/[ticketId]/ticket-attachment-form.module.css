@@ -3,8 +3,8 @@
   border-radius: 28px;
   border: 1px solid var(--line);
   background:
-    radial-gradient(circle at top left, rgba(138, 166, 255, 0.12), transparent 30%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03));
+    radial-gradient(circle at top left, rgba(15, 95, 122, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 252, 0.95));
   box-shadow: var(--shadow);
   display: grid;
   gap: 18px;
@@ -52,8 +52,8 @@
   min-width: 160px;
   padding: 14px 16px;
   border-radius: 18px;
-  border: 1px solid rgba(138, 166, 255, 0.18);
-  background: rgba(138, 166, 255, 0.08);
+  border: 1px solid rgba(15, 95, 122, 0.16);
+  background: var(--accent-soft);
   display: grid;
   gap: 6px;
   justify-items: end;
@@ -74,14 +74,19 @@
   gap: 14px;
 }
 
+.captureActions {
+  display: grid;
+  gap: 12px;
+}
+
 .dropzone {
   position: relative;
   display: grid;
   gap: 8px;
   padding: 18px;
   border-radius: 22px;
-  border: 1px dashed rgba(138, 166, 255, 0.32);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(15, 95, 122, 0.28);
+  background: var(--surface-muted);
   cursor: pointer;
 }
 
@@ -97,11 +102,63 @@
   cursor: pointer;
 }
 
+.mobileCameraAction {
+  position: relative;
+  display: none;
+  gap: 14px;
+  align-items: center;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 95, 122, 0.16);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  cursor: pointer;
+}
+
+.mobileCameraAction input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.mobileCameraIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid rgba(15, 95, 122, 0.14);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mobileCameraIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mobileCameraCopy {
+  display: grid;
+  gap: 4px;
+}
+
+.mobileCameraCopy strong {
+  font-size: 0.95rem;
+}
+
+.mobileCameraCopy span {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .preview {
   padding: 16px;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  background: var(--surface-muted);
   display: grid;
   gap: 12px;
 }
@@ -133,8 +190,8 @@
 .fileList li {
   padding: 12px 14px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -170,9 +227,9 @@
 }
 
 .success {
-  border: 1px solid rgba(104, 199, 183, 0.28);
-  background: rgba(104, 199, 183, 0.08);
-  color: #9ff0e2;
+  border: 1px solid var(--success-line);
+  background: var(--success-soft);
+  color: var(--success);
 }
 
 .actions {
@@ -192,8 +249,8 @@
   padding: 0 18px;
   border: 0;
   border-radius: 14px;
-  color: #1a1205;
-  background: linear-gradient(160deg, #f0c56f, #d89431);
+  color: #fff;
+  background: var(--accent);
   font-weight: 700;
   cursor: pointer;
 }
@@ -218,5 +275,11 @@
 
   .button {
     width: 100%;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .mobileCameraAction {
+    display: flex;
   }
 }

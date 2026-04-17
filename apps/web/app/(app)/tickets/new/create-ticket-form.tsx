@@ -4,6 +4,7 @@ import Link from "next/link";
 import { startTransition, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
+import { CameraIcon, PaperclipIcon } from "@/app/_components/upload-icons";
 import type { CategoryOption } from "@/lib/categories";
 import type { AppDictionary, Locale } from "@/lib/i18n";
 import { translateStatus } from "@/lib/i18n";
@@ -19,6 +20,20 @@ interface CreateTicketFormProps {
 interface CreatedTicketPayload {
   id: string;
   ticketNumber: string;
+}
+
+function fileKey(file: File) {
+  return `${file.name}-${file.size}-${file.lastModified}`;
+}
+
+function mergeFiles(current: File[], next: File[]) {
+  const deduped = new Map(current.map((file) => [fileKey(file), file]));
+
+  for (const file of next) {
+    deduped.set(fileKey(file), file);
+  }
+
+  return Array.from(deduped.values());
 }
 
 export function CreateTicketForm({
@@ -54,7 +69,15 @@ export function CreateTicketForm({
     categories.length === 0;
 
   function handleFilesSelected(event: ChangeEvent<HTMLInputElement>) {
-    setFiles(Array.from(event.target.files ?? []));
+    const nextFiles = Array.from(event.target.files ?? []);
+
+    if (nextFiles.length === 0) {
+      return;
+    }
+
+    setFiles((current) => mergeFiles(current, nextFiles));
+    setError(null);
+    event.target.value = "";
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -214,16 +237,38 @@ export function CreateTicketForm({
             />
           </label>
 
-          <label className={styles.field}>
+          <div className={styles.field}>
             <span>{copy.fields.attachments}</span>
-            <input
-              type="file"
-              accept=".png,.jpg,.jpeg,.heic,.heif,.pdf,image/png,image/jpeg,image/heic,image/heif,application/pdf"
-              multiple
-              onChange={handleFilesSelected}
-            />
+            <div className={styles.fileActions}>
+              <label className={styles.fileAction}>
+                <PaperclipIcon className={styles.fileActionIcon} />
+                <span>{copy.filePickerAction}</span>
+                <input
+                  className={styles.fileInput}
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.heic,.heif,.pdf,image/png,image/jpeg,image/heic,image/heif,application/pdf"
+                  multiple
+                  onChange={handleFilesSelected}
+                />
+              </label>
+
+              <label className={styles.mobileCaptureAction}>
+                <CameraIcon className={styles.fileActionIcon} />
+                <span>{copy.mobileCameraAction}</span>
+                <input
+                  className={styles.fileInput}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleFilesSelected}
+                />
+              </label>
+            </div>
             <small>{copy.attachmentHint}</small>
-          </label>
+            <small className={styles.mobileCaptureHint}>
+              {copy.mobileCameraHint}
+            </small>
+          </div>
         </div>
 
         <label className={styles.field}>

@@ -45,14 +45,14 @@
   gap: 8px;
 }
 
-.field span {
+.field > span {
   font-size: 0.82rem;
   color: var(--muted-strong);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
-.field small {
+.field > small {
   color: var(--muted);
   line-height: 1.5;
 }
@@ -76,6 +76,60 @@
 .field textarea {
   resize: vertical;
   min-height: 180px;
+}
+
+.fileActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fileAction,
+.mobileCaptureAction {
+  position: relative;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mobileCaptureAction {
+  display: none;
+  color: var(--accent-strong);
+  border-color: rgba(15, 95, 122, 0.16);
+  background: var(--accent-soft);
+}
+
+.fileAction span,
+.mobileCaptureAction span {
+  font-size: 0.95rem;
+  color: inherit;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.fileActionIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.fileInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.mobileCaptureHint {
+  display: none;
 }
 
 .fileList {
@@ -176,5 +230,15 @@
 
   .actions button {
     width: 100%;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .mobileCaptureAction {
+    display: inline-flex;
+  }
+
+  .mobileCaptureHint {
+    display: block;
   }
 }

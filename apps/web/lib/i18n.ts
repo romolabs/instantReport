@@ -195,6 +195,10 @@ const dictionaries = {
         },
         attachmentHint:
           "Opcional. Agrega capturas, fotos o PDFs de hasta 10 MB por archivo.",
+        filePickerAction: "Elegir archivos",
+        mobileCameraAction: "Tomar foto",
+        mobileCameraHint:
+          "En teléfono abre la cámara trasera para adjuntar evidencia al momento.",
         create: "Crear ticket",
         creating: "Creando ticket...",
         createdLabel: "Ticket creado",
@@ -247,9 +251,13 @@ const dictionaries = {
           "Sube imágenes o un PDF para dejar un registro claro de lo que se observó.",
         accepted: "Aceptado",
         acceptedValue: "Imágenes y PDFs",
+        filePickerAction: "Elegir archivos",
         chooseFiles: "Elegir archivos",
         chooseFilesHint:
           "PNG, JPG, JPEG, HEIC, HEIF o PDF. Puedes seleccionar varios a la vez.",
+        mobileCameraAction: "Tomar foto",
+        mobileCameraHint:
+          "En teléfono abre la cámara trasera para agregar evidencia inmediata.",
         selectedFiles: "Archivos seleccionados",
         unknownType: "Tipo desconocido",
         helper:
@@ -775,6 +783,10 @@ const dictionaries = {
         },
         attachmentHint:
           "Optional. Add screenshots, photos, or PDFs up to 10 MB each.",
+        filePickerAction: "Choose files",
+        mobileCameraAction: "Take photo",
+        mobileCameraHint:
+          "On phones this opens the rear camera so you can attach evidence immediately.",
         create: "Create ticket",
         creating: "Creating ticket...",
         createdLabel: "Ticket created",
@@ -827,9 +839,13 @@ const dictionaries = {
           "Upload images or a PDF so the ticket keeps a clear record of what was seen.",
         accepted: "Accepted",
         acceptedValue: "Images and PDFs",
+        filePickerAction: "Choose files",
         chooseFiles: "Choose files",
         chooseFilesHint:
           "PNG, JPG, JPEG, HEIC, HEIF, or PDF. Select one or many at once.",
+        mobileCameraAction: "Take photo",
+        mobileCameraHint:
+          "On phones this opens the rear camera for quick evidence capture.",
         selectedFiles: "Selected files",
         unknownType: "Unknown type",
         helper:

@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background: rgba(247, 243, 236, 0.9);
+  background: rgba(247, 250, 252, 0.92);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(108, 92, 65, 0.08);
 }
@@ -189,7 +189,7 @@
 }
 
 .navLinkActive {
-  border-color: rgba(31, 111, 120, 0.16);
+  border-color: rgba(15, 95, 122, 0.16);
   background: var(--accent-soft);
   color: var(--accent-strong);
 }
@@ -275,7 +275,7 @@
 .navLink:focus-visible,
 .navLinkActive:focus-visible,
 .logoutButton:focus-visible {
-  outline: 3px solid rgba(31, 111, 120, 0.22);
+  outline: 3px solid rgba(15, 95, 122, 0.22);
   outline-offset: 2px;
 }
 

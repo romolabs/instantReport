@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
+import { CameraIcon } from "@/app/_components/upload-icons";
 import type { AppDictionary, Locale } from "@/lib/i18n";
 
 import styles from "./ticket-attachment-form.module.css";
@@ -32,6 +33,20 @@ function formatFileSize(value: number) {
   return `${size.toFixed(size >= 10 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
+function fileKey(file: File) {
+  return `${file.name}-${file.size}-${file.lastModified}`;
+}
+
+function mergeFiles(current: File[], next: File[]) {
+  const deduped = new Map(current.map((file) => [fileKey(file), file]));
+
+  for (const file of next) {
+    deduped.set(fileKey(file), file);
+  }
+
+  return Array.from(deduped.values());
+}
+
 export function TicketAttachmentForm({
   copy,
   ticketIdentifier,
@@ -48,6 +63,19 @@ export function TicketAttachmentForm({
     () => files.reduce((sum, file) => sum + file.size, 0),
     [files]
   );
+
+  function handleFilesSelected(event: ChangeEvent<HTMLInputElement>) {
+    const nextFiles = Array.from(event.target.files ?? []);
+
+    if (nextFiles.length === 0) {
+      return;
+    }
+
+    setFiles((current) => mergeFiles(current, nextFiles));
+    setError(null);
+    setSuccess(null);
+    event.target.value = "";
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -115,21 +143,34 @@ export function TicketAttachmentForm({
       </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-        <label className={styles.dropzone}>
-          <span className={styles.dropzoneTitle}>{copy.chooseFiles}</span>
-          <span className={styles.dropzoneBody}>{copy.chooseFilesHint}</span>
-          <input
-            type="file"
-            multiple
-            accept="image/*,application/pdf"
-            onChange={(event) => {
-              const nextFiles = Array.from(event.target.files ?? []);
-              setFiles(nextFiles);
-              setError(null);
-              setSuccess(null);
-            }}
-          />
-        </label>
+        <div className={styles.captureActions}>
+          <label className={styles.dropzone}>
+            <span className={styles.dropzoneTitle}>{copy.filePickerAction}</span>
+            <span className={styles.dropzoneBody}>{copy.chooseFilesHint}</span>
+            <input
+              type="file"
+              multiple
+              accept=".png,.jpg,.jpeg,.heic,.heif,.pdf,image/png,image/jpeg,image/heic,image/heif,application/pdf"
+              onChange={handleFilesSelected}
+            />
+          </label>
+
+          <label className={styles.mobileCameraAction}>
+            <span className={styles.mobileCameraIcon}>
+              <CameraIcon />
+            </span>
+            <span className={styles.mobileCameraCopy}>
+              <strong>{copy.mobileCameraAction}</strong>
+              <span>{copy.mobileCameraHint}</span>
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFilesSelected}
+            />
+          </label>
+        </div>
 
         {files.length > 0 ? (
           <div className={styles.preview}>
