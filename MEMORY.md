@@ -317,3 +317,90 @@ Either:
 - Local verification in this session used:
   - `.env` with `DATABASE_URL=postgresql://postgres@localhost:5433/instantreport?schema=public`
   - a local PostgreSQL 16 cluster in `.local-pgdata`
+
+## Homelab Deployment Status
+
+- Date: `2026-04-16`
+- Branch deployed: `codex-bootstrap-migrations`
+- Deployment target:
+  - SSH alias: `romolabs-server`
+  - host user: `romo-labs`
+  - Tailscale IP: `100.116.168.123`
+  - LAN IP also present: `192.168.100.93`
+- The app is now deployed on the homelab with Docker Compose:
+  - `postgres`
+  - `api`
+  - `web`
+  - persistent Docker volumes for Postgres data and ticket uploads
+
+## Homelab URLs
+
+- Web login: `http://100.116.168.123:3000/login`
+- API docs: `http://100.116.168.123:4000/api/docs`
+
+## Homelab Validation
+
+- `docker compose --env-file .env.docker up -d --build` completed successfully
+- `docker compose --env-file .env.docker --profile bootstrap run --rm bootstrap` completed successfully
+- `docker compose --env-file .env.docker ps` showed:
+  - `db` healthy
+  - `api` healthy
+  - `web` started
+- Verified with HTTP checks from the server:
+  - `curl -I http://localhost:3000/login` returned `200 OK`
+  - `curl -I http://localhost:4000/api/docs` returned `200 OK`
+  - `curl -I http://100.116.168.123:3000/login` returned `200 OK`
+  - `curl -I http://100.116.168.123:4000/api/docs` returned `200 OK`
+- Bootstrap created the initial admin and seeded categories successfully
+
+## Homelab Credentials
+
+- Current seeded admin:
+  - email: `admin@example.com`
+  - password: `ChangeMe123!`
+
+## Docker Deployment Notes
+
+- The repo now includes:
+  - `Dockerfile.api`
+  - `apps/web/Dockerfile`
+  - `docker-compose.yml`
+  - `.env.docker.example`
+- `Dockerfile.api` now injects a build-time fallback `DATABASE_URL` so `prisma generate` works during image build
+- `docker-compose.yml` now:
+  - waits for Postgres health before API startup
+  - waits for API health before web startup
+  - supports `APP_PORT` consistently
+  - requires `POSTGRES_PASSWORD_URLENCODED` for safe `DATABASE_URL` construction
+- The homelab `.env.docker` was updated to include `POSTGRES_PASSWORD_URLENCODED`
+
+## Important Security Caveats
+
+- The current homelab deploy is not restricted to Tailscale only
+  - ports `3000` and `4000` are bound on `0.0.0.0`
+  - the app is reachable from the Tailscale IP
+  - it is also likely reachable from the local LAN at `192.168.100.93`
+  - `ufw` is currently inactive on the host
+- The user explicitly accepted leaving it this way for now
+- Ticket attachments are still served from backend static `/uploads/...` URLs with no auth guard
+  - anyone with the direct file URL can fetch the attachment
+  - this is acceptable only as a temporary private-testing compromise
+
+## Best Next Steps After Resuming
+
+1. Restrict the homelab deployment to Tailscale-only access by binding Docker ports to `100.116.168.123` or by adding host firewall rules for `tailscale0`
+2. Replace static attachment serving with authenticated attachment download endpoints
+3. Decide whether to continue hardening deployment first or resume product work
+4. If product work resumes first, the next major unfinished area is still the mobile app
+
+## Resume Context For Next Thread
+
+- Local app services on the laptop were intentionally shut down before moving to homelab testing
+- The homelab now acts as the live testing environment
+- The repo state that matches the homelab deploy includes the Docker hardening commits made during this session
+- If resuming deployment work, start by reading:
+  - `MEMORY.md`
+  - `README.md`
+  - `docker-compose.yml`
+  - `Dockerfile.api`
+  - `apps/web/Dockerfile`
