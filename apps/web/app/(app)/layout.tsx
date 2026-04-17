@@ -1,11 +1,8 @@
-import Link from "next/link";
 import { isStaffRole, requireAuthenticatedUser } from "@/lib/auth";
-import { LanguageSwitcher } from "@/app/_components/language-switcher";
 import { getDictionary, translateRole } from "@/lib/i18n";
 import { getCurrentLocale } from "@/lib/i18n-server";
 
-import { LogoutButton } from "./logout-button";
-import styles from "./shell.module.css";
+import { AppShellClient } from "./app-shell.client";
 
 export default async function AppLayout({
   children
@@ -30,47 +27,26 @@ export default async function AppLayout({
   ];
 
   return (
-    <div className={styles.appShell}>
-      <aside className={styles.sidebar}>
-        <div>
-          <div className={styles.topMeta}>
-            <p className={styles.brand}>{dictionary.common.appName}</p>
-            <LanguageSwitcher
-              locale={locale}
-              label={dictionary.common.languageLabel}
-              options={dictionary.common.languageOptions}
-            />
-          </div>
-          <h1>{dictionary.appShell.title}</h1>
-          <p className={styles.sidebarCopy}>
-            {dictionary.appShell.subtitle}
-          </p>
-        </div>
-
-        <nav className={styles.nav}>
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className={styles.navLink}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className={styles.sidebarFooter}>
-          <div className={styles.identity}>
-            <span className={styles.statusDot} />
-            <div className={styles.identityText}>
-              <span>{user.fullName}</span>
-              <small>{translateRole(locale, user.role)}</small>
-            </div>
-          </div>
-          <LogoutButton
-            signOutLabel={dictionary.appShell.logout}
-            signingOutLabel={dictionary.appShell.loggingOut}
-          />
-        </div>
-      </aside>
-
-      <main className={styles.content}>{children}</main>
-    </div>
+    <AppShellClient
+      locale={locale}
+      appName={dictionary.common.appName}
+      title={dictionary.appShell.title}
+      subtitle={dictionary.appShell.subtitle}
+      navLabel={dictionary.appShell.navigation}
+      openMenuLabel={dictionary.appShell.openMenu}
+      closeMenuLabel={dictionary.appShell.closeMenu}
+      accountLabel={dictionary.appShell.account}
+      languageLabel={dictionary.common.languageLabel}
+      languageOptions={dictionary.common.languageOptions}
+      logoutLabel={dictionary.appShell.logout}
+      loggingOutLabel={dictionary.appShell.loggingOut}
+      user={{
+        fullName: user.fullName,
+        roleLabel: translateRole(locale, user.role)
+      }}
+      navItems={navItems}
+    >
+      {children}
+    </AppShellClient>
   );
 }

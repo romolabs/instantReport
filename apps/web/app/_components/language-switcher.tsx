@@ -29,13 +29,17 @@ export function LanguageSwitcher({
     setIsPending(true);
 
     try {
-      await fetch("/api/preferences/locale", {
+      const response = await fetch("/api/preferences/locale", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ locale: nextLocale })
       });
+
+      if (!response.ok) {
+        return;
+      }
 
       startTransition(() => {
         router.refresh();

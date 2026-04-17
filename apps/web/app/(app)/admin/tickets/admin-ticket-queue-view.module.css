@@ -1,9 +1,8 @@
 .shell {
   position: relative;
   display: grid;
-  gap: 24px;
-  padding: 8px 0 28px;
-  isolation: isolate;
+  gap: 18px;
+  padding: 4px 0 12px;
 }
 
 .glow,
@@ -13,13 +12,13 @@
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.9fr);
-  gap: 24px;
-  padding: 24px;
-  border-radius: 28px;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+  gap: 18px;
+  padding: 18px;
+  border-radius: 24px;
   border: 1px solid var(--line);
   background: var(--panel);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
 }
 
 .heroCopy h2,
@@ -36,30 +35,31 @@
 .metricLabel {
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   color: var(--accent-2);
-  font-size: 0.76rem;
+  font-size: 0.74rem;
+  font-weight: 700;
 }
 
 .heroCopy h2 {
-  margin-top: 10px;
-  font-size: clamp(2.2rem, 4vw, 4rem);
-  line-height: 1.08;
+  margin-top: 8px;
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  line-height: 1.14;
   letter-spacing: -0.03em;
 }
 
 .description {
-  margin: 18px 0 0;
-  max-width: 60ch;
+  margin: 12px 0 0;
+  max-width: 56ch;
   color: var(--muted);
-  line-height: 1.65;
+  line-height: 1.58;
 }
 
 .heroActions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: 18px;
 }
 
 .secondaryAction,
@@ -101,10 +101,8 @@
 
 .primaryAction,
 .primaryMiniAction {
-  border: 1px solid rgba(255, 255, 255, 0.08);
   background: var(--accent);
   color: #fff;
-  box-shadow: none;
 }
 
 .heroRail {
@@ -123,12 +121,12 @@
 .metricCard {
   display: grid;
   gap: 12px;
-  padding: 20px;
-  border-radius: 24px;
+  padding: 16px;
+  border-radius: 20px;
 }
 
 .metricCard strong {
-  font-size: 3rem;
+  font-size: 2.35rem;
   line-height: 1;
   color: var(--text);
 }
@@ -146,14 +144,14 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  padding: 16px;
-  border-radius: 22px;
+  padding: 14px;
+  border-radius: 20px;
 }
 
 .metricGrid div {
   display: grid;
   gap: 6px;
-  padding: 12px;
+  padding: 10px 12px;
   border-radius: 16px;
   background: var(--surface-muted);
 }
@@ -172,15 +170,13 @@
 }
 
 .sectionHead {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  align-items: flex-end;
+  display: grid;
+  gap: 16px;
 }
 
 .sectionHead h3 {
-  margin-top: 8px;
-  font-size: clamp(1.4rem, 2vw, 2rem);
+  margin-top: 6px;
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
 }
 
 .resultMeta {
@@ -191,10 +187,8 @@
 }
 
 .controlPanel {
-  min-width: min(100%, 420px);
   display: grid;
   gap: 12px;
-  justify-items: stretch;
 }
 
 .searchField,
@@ -216,7 +210,7 @@
   min-height: 46px;
   border-radius: 14px;
   border: 1px solid var(--line);
-  background: var(--surface);
+  background: var(--panel-strong);
   color: var(--text);
   padding: 0 14px;
   font: inherit;
@@ -251,9 +245,9 @@
 }
 
 .filterActive {
-  background: var(--surface-muted);
-  border-color: transparent;
-  color: var(--text);
+  background: var(--accent-soft);
+  border-color: rgba(31, 111, 120, 0.16);
+  color: var(--accent-strong);
   font-weight: 700;
 }
 
@@ -263,13 +257,13 @@
 
 .queue {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .ticketCard,
 .emptyState {
-  padding: 20px;
-  border-radius: 24px;
+  padding: 16px;
+  border-radius: 20px;
   box-shadow: none;
 }
 
@@ -281,23 +275,24 @@
 }
 
 .ticketCard h4 {
-  margin-top: 10px;
-  font-size: 1.3rem;
+  margin-top: 8px;
+  font-size: 1.1rem;
+  line-height: 1.35;
 }
 
 .badgeStack {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-end;
+  gap: 8px;
+  justify-content: flex-start;
 }
 
 .statusBadge,
 .priorityBadge {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 30px;
+  padding: 0 10px;
   border-radius: 999px;
   font-size: 0.82rem;
   font-weight: 700;
@@ -305,33 +300,39 @@
 }
 
 .statusOpen {
-  background: rgba(31, 41, 55, 0.06);
-  color: var(--text);
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  border: 1px solid var(--line);
 }
 
 .statusAssigned {
-  background: rgba(53, 104, 173, 0.12);
-  color: #244e86;
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  border: 1px solid var(--line);
 }
 
 .statusActive {
-  background: rgba(31, 111, 120, 0.12);
-  color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border: 1px solid rgba(31, 111, 120, 0.16);
 }
 
 .statusWaiting {
-  background: rgba(191, 117, 51, 0.14);
-  color: #8b5727;
+  background: var(--accent-2-soft);
+  color: var(--accent-2);
+  border: 1px solid rgba(143, 107, 61, 0.16);
 }
 
 .statusResolved {
-  background: rgba(77, 156, 118, 0.14);
-  color: #2f6f53;
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  border: 1px solid var(--line);
 }
 
 .statusClosed {
-  background: rgba(107, 114, 128, 0.12);
-  color: #4b5563;
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  border: 1px solid var(--line);
 }
 
 .priorityLow {
@@ -352,13 +353,14 @@
 .priorityUrgent {
   background: rgba(182, 72, 72, 0.12);
   color: #9b3030;
+  border: 1px solid rgba(182, 72, 72, 0.16);
 }
 
 .ticketMeta {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  margin-top: 18px;
+  margin-top: 14px;
 }
 
 .ticketMeta div {
@@ -370,8 +372,8 @@
 }
 
 .summary {
-  margin-top: 18px;
-  line-height: 1.65;
+  margin-top: 12px;
+  line-height: 1.58;
 }
 
 .ticketFooter {
@@ -379,7 +381,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 18px;
+  margin-top: 12px;
 }
 
 .footerNotes {

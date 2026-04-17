@@ -9,13 +9,41 @@ export default async function MyTicketsPage() {
   const dictionary = getDictionary(locale);
   const tickets = await getTickets();
   const copy = dictionary.tickets.list;
+  const summary = [
+    {
+      label: translateStatus(locale, "OPEN"),
+      value: tickets.filter(
+        (ticket) => ticket.status === "OPEN" || ticket.status === "ASSIGNED"
+      ).length
+    },
+    {
+      label: translateStatus(locale, "PENDING_USER"),
+      value: tickets.filter((ticket) => ticket.status === "PENDING_USER").length
+    },
+    {
+      label: translateStatus(locale, "RESOLVED"),
+      value: tickets.filter(
+        (ticket) => ticket.status === "RESOLVED" || ticket.status === "CLOSED"
+      ).length
+    }
+  ];
 
   return (
     <section>
       <div className={styles.header}>
-        <div>
+        <div className={styles.headerCopy}>
           <p className={styles.kicker}>{copy.kicker}</p>
           <h2>{copy.title}</h2>
+          {tickets.length > 0 ? (
+            <div className={styles.summaryRow}>
+              {summary.map((item) => (
+                <div key={item.label} className={styles.summaryChip}>
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
         <Link href="/tickets/new" className={styles.linkButton}>
           {copy.action}

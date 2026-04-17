@@ -1,17 +1,16 @@
 .page {
   display: grid;
-  gap: 24px;
+  gap: 18px;
 }
 
 .hero {
   display: grid;
-  gap: 20px;
-  padding: 28px;
-  border-radius: 28px;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 24px;
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(18, 26, 51, 0.94), rgba(10, 15, 28, 0.88));
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(251, 246, 238, 0.98));
+  box-shadow: var(--shadow-sm);
 }
 
 .heroCopy {
@@ -22,22 +21,22 @@
 .kicker {
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.12em;
   font-size: 0.74rem;
   color: var(--accent-2);
+  font-weight: 700;
 }
 
 .hero h1 {
   margin: 0;
-  max-width: 16ch;
-  font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(2.4rem, 4vw, 4.2rem);
-  line-height: 0.95;
+  max-width: 18ch;
+  font-size: clamp(1.9rem, 3vw, 2.8rem);
+  line-height: 1.08;
 }
 
 .copy {
   margin: 0;
-  max-width: 72ch;
+  max-width: 64ch;
   color: var(--muted);
   line-height: 1.65;
 }
@@ -49,10 +48,10 @@
 }
 
 .heroStat {
-  padding: 14px 16px;
+  padding: 12px 14px;
   border-radius: 18px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
 }
 
 .heroStat span {

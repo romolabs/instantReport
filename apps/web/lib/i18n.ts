@@ -135,6 +135,10 @@ const dictionaries = {
       title: "Portal de soporte",
       subtitle:
         "Un espacio simple para registrar incidencias, dar seguimiento y resolverlas sin perder contexto.",
+      navigation: "Navegación",
+      openMenu: "Abrir menú",
+      closeMenu: "Cerrar menú",
+      account: "Cuenta",
       nav: {
         tickets: "Mis tickets",
         newTicket: "Nuevo ticket",
@@ -277,10 +281,9 @@ const dictionaries = {
         reachServer: "No fue posible comunicarse con el servidor."
       },
       staffActions: {
-        headerKicker: "Consola operativa",
-        headerTitle: "Acciones del equipo",
-        headerCopy:
-          "Mantén la propiedad, el estado y el cierre en un solo lugar para que el historial siga claro.",
+        headerKicker: "Equipo",
+        headerTitle: "Acciones",
+        headerCopy: "Asigna, cambia el estado y registra la solución.",
         access: "Acceso {role}",
         stats: {
           owner: "Responsable",
@@ -291,25 +294,21 @@ const dictionaries = {
         assignment: {
           eyebrowAdmin: "Asignación",
           eyebrowTechnician: "Propiedad",
-          titleAdmin: "Asignar ticket",
+          titleAdmin: "Asignar",
           titleTechnician: "Tomar ticket",
-          descriptionAdmin:
-            "Elige al responsable actual y deja una nota breve de traspaso.",
-          descriptionTechnician:
-            "Toma este ticket para ti y deja una nota breve de traspaso.",
+          descriptionAdmin: "Elige responsable y agrega una nota breve.",
+          descriptionTechnician: "Toma el ticket y agrega una nota breve.",
           labelAdmin: "Asignar a",
           labelTechnician: "Responsable",
           emptyNone: "No hay usuarios disponibles",
           emptyAdmin: "Elige un técnico o administrador",
           emptyTechnician: "Asignarme este ticket",
-          handoffNote: "Nota de traspaso",
+          handoffNote: "Nota",
           handoffPlaceholder: "Contexto opcional para la siguiente persona.",
           helperClosed:
             "Los tickets resueltos o cerrados deben reabrirse antes de cambiar de responsable.",
-          helperAdmin:
-            "La asignación cambia la propiedad sin perder el historial existente.",
-          helperTechnician:
-            "Los técnicos pueden tomar tickets para sí mismos; los administradores pueden distribuirlos en el equipo.",
+          helperAdmin: "La asignación cambia el responsable sin perder historial.",
+          helperTechnician: "Los técnicos pueden tomar tickets para sí mismos.",
           saveAdmin: "Guardar asignación",
           saveTechnician: "Tomar ticket",
           saving: "Guardando asignación...",
@@ -317,40 +316,38 @@ const dictionaries = {
           serverError: "No fue posible comunicarse con el servidor."
         },
         lifecycle: {
-          eyebrow: "Ciclo",
-          title: "Actualizar estado",
-          description:
-            "Mueve el ticket entre trabajo activo, espera o reapertura limpia.",
-          noteLabel: "Nota de estado",
+          eyebrow: "Estado",
+          title: "Cambiar estado",
+          description: "Mueve el ticket al siguiente estado.",
+          noteLabel: "Nota",
           notePlaceholder:
             "Explica por qué cambió el estado o cuál es el siguiente paso.",
           reopenReason: "Motivo de reapertura",
           reopenPlaceholder:
             "Obligatorio si el ticket resuelto o cerrado vuelve a trabajo activo.",
-          helper: "El estado seleccionado es {status}.",
+          helper: "Nuevo estado: {status}.",
           save: "Guardar estado",
           saving: "Guardando estado...",
           error: "No fue posible actualizar el estado.",
           serverError: "No fue posible comunicarse con el servidor."
         },
         closeout: {
-          eyebrow: "Cierre",
-          title: "Documentar la solución",
-          description:
-            "Registra la solución final antes de marcar el ticket como resuelto o cerrado.",
-          target: "Estado de cierre",
+          eyebrow: "Resolución",
+          title: "Resolver o cerrar",
+          description: "Guarda la solución antes de cerrar el ticket.",
+          target: "Estado final",
           currentState: "Estado actual",
           resolutionSummary: "Resumen de solución",
           resolutionPlaceholder:
             "Resume la solución con un lenguaje que el solicitante pueda entender.",
-          closeoutNote: "Nota de cierre",
+          closeoutNote: "Nota",
           closeoutPlaceholder:
             "Contexto interno opcional para el historial.",
           reopenReason: "Motivo de reapertura",
           reopenPlaceholder:
             "Obligatorio cuando un ticket cerrado se reabre hacia resuelto.",
           helper:
-            "Cerrar requiere un resumen de solución; reabrir un ticket cerrado requiere un motivo.",
+            "Cerrar requiere un resumen; reabrir requiere un motivo.",
           save: "Guardar cierre",
           saving: "Guardando cierre...",
           error: "No fue posible guardar el cierre.",
@@ -718,6 +715,10 @@ const dictionaries = {
       title: "Support portal",
       subtitle:
         "A simple place to log issues, follow them through, and resolve them without losing context.",
+      navigation: "Navigation",
+      openMenu: "Open menu",
+      closeMenu: "Close menu",
+      account: "Account",
       nav: {
         tickets: "My tickets",
         newTicket: "New ticket",
@@ -860,10 +861,9 @@ const dictionaries = {
         reachServer: "Unable to reach the server right now."
       },
       staffActions: {
-        headerKicker: "Operations console",
-        headerTitle: "Team actions",
-        headerCopy:
-          "Keep ownership, status, and close-out together so the record stays clear.",
+        headerKicker: "Team",
+        headerTitle: "Actions",
+        headerCopy: "Assign, update status, and record the resolution.",
         access: "{role} access",
         stats: {
           owner: "Owner",
@@ -874,25 +874,21 @@ const dictionaries = {
         assignment: {
           eyebrowAdmin: "Assignment",
           eyebrowTechnician: "Ownership",
-          titleAdmin: "Assign the ticket",
+          titleAdmin: "Assign",
           titleTechnician: "Claim the ticket",
-          descriptionAdmin:
-            "Choose the current owner and capture a short handoff note.",
-          descriptionTechnician:
-            "Claim this ticket for yourself and capture a short handoff note.",
+          descriptionAdmin: "Choose an owner and add a short note.",
+          descriptionTechnician: "Claim the ticket and add a short note.",
           labelAdmin: "Assign to",
           labelTechnician: "Owner",
           emptyNone: "No assignable users supplied",
           emptyAdmin: "Choose a technician or admin",
           emptyTechnician: "Assign this ticket to me",
-          handoffNote: "Handoff note",
+          handoffNote: "Note",
           handoffPlaceholder: "Optional context for the next teammate.",
           helperClosed:
             "Resolved and closed tickets must be reopened before ownership can change.",
-          helperAdmin:
-            "Assignment moves ownership without losing the existing history.",
-          helperTechnician:
-            "Technicians can claim tickets for themselves while admins can route them across the team.",
+          helperAdmin: "Assignment changes the owner without losing history.",
+          helperTechnician: "Technicians can claim tickets for themselves.",
           saveAdmin: "Save assignment",
           saveTechnician: "Claim ticket",
           saving: "Saving assignment...",
@@ -900,39 +896,37 @@ const dictionaries = {
           serverError: "Unable to reach the server right now."
         },
         lifecycle: {
-          eyebrow: "Lifecycle",
-          title: "Update the status",
-          description:
-            "Move the ticket through active work, waiting states, or a clean reopen.",
-          noteLabel: "Status note",
+          eyebrow: "Status",
+          title: "Change status",
+          description: "Move the ticket to the next state.",
+          noteLabel: "Note",
           notePlaceholder:
             "Capture why the status changed or what the next step is.",
           reopenReason: "Reopen reason",
           reopenPlaceholder:
             "Required if this resolved or closed ticket is moving back into active work.",
-          helper: "The selected state is {status}.",
+          helper: "New state: {status}.",
           save: "Save status",
           saving: "Saving status...",
           error: "Unable to update workflow status.",
           serverError: "Unable to reach the server right now."
         },
         closeout: {
-          eyebrow: "Close-out",
-          title: "Write the resolution",
-          description:
-            "Capture the final fix before marking the ticket resolved or closed.",
-          target: "Close-out target",
+          eyebrow: "Resolution",
+          title: "Resolve or close",
+          description: "Save the fix before closing the ticket.",
+          target: "Final state",
           currentState: "Current state",
           resolutionSummary: "Resolution summary",
           resolutionPlaceholder:
             "Summarize the fix in language the requester can understand.",
-          closeoutNote: "Close-out note",
+          closeoutNote: "Note",
           closeoutPlaceholder: "Optional internal context for the audit trail.",
           reopenReason: "Reopen reason",
           reopenPlaceholder:
             "Required when reopening a closed ticket back into resolved work.",
           helper:
-            "Closing requires a resolution summary; reopening a closed ticket requires a reason.",
+            "Closing requires a summary; reopening requires a reason.",
           save: "Save close-out",
           saving: "Saving close-out...",
           error: "Unable to save the close-out details.",

@@ -150,6 +150,7 @@ export function TicketDetailView({
         <div className={styles.heroCopy}>
           <p className={styles.kicker}>{copy.kicker}</p>
           <h1>{ticket.title}</h1>
+          <p className={styles.heroDescription}>{copy.heroDescription}</p>
         </div>
 
         <dl className={styles.summaryStrip}>
@@ -172,17 +173,7 @@ export function TicketDetailView({
         </dl>
       </header>
 
-      <div className={styles.staffActionsWrap}>
-        <TicketStaffActions
-          locale={locale}
-          copy={staffActionsCopy}
-          ticket={ticket}
-          currentUserRole={currentUserRole}
-          assignableUsers={assignableUsers}
-        />
-      </div>
-
-      <div className={styles.mobilePriority}>
+      <div className={styles.introGrid}>
         <section className={styles.panel}>
           <div className={styles.sectionHeader}>
             <div>
@@ -232,6 +223,16 @@ export function TicketDetailView({
             </div>
           </dl>
         </section>
+      </div>
+
+      <div className={styles.staffActionsWrap}>
+        <TicketStaffActions
+          locale={locale}
+          copy={staffActionsCopy}
+          ticket={ticket}
+          currentUserRole={currentUserRole}
+          assignableUsers={assignableUsers}
+        />
       </div>
 
       <section className={styles.panel}>
