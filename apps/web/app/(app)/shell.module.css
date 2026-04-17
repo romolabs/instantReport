@@ -79,6 +79,9 @@
 .drawerClose {
   position: relative;
   flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  margin-top: 2px;
 }
 
 .drawerClose span {
@@ -117,11 +120,11 @@
   left: 0;
   bottom: 0;
   z-index: 30;
-  width: min(86vw, 320px);
+  width: min(88vw, 360px);
   padding:
-    calc(16px + env(safe-area-inset-top))
-    16px
-    calc(16px + env(safe-area-inset-bottom));
+    calc(10px + env(safe-area-inset-top))
+    14px
+    calc(12px + env(safe-area-inset-bottom));
   transform: translateX(calc(-100% - 18px));
   transition: transform 220ms ease;
   overscroll-behavior: contain;
@@ -140,26 +143,32 @@
 }
 
 .sidebarInner {
-  height: 100%;
-  display: grid;
-  align-content: space-between;
-  gap: 20px;
-  padding: 18px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px 18px 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .sidebarTop {
-  display: grid;
-  gap: 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .sidebarBrandBlock {
   display: grid;
   gap: 10px;
+  flex: 1;
+  min-width: 0;
 }
 
 .sidebarBrandBlock h1 {
   margin: 0;
-  font-size: clamp(1.7rem, 4vw, 2.2rem);
+  font-size: clamp(1.55rem, 8vw, 2.05rem);
   line-height: 1.02;
   letter-spacing: -0.03em;
 }
@@ -172,7 +181,7 @@
 
 .nav {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .navLink,
@@ -196,7 +205,7 @@
 
 .sidebarFooter {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   color: var(--muted);
 }
 
@@ -303,7 +312,16 @@
   }
 
   .sidebarInner {
+    display: grid;
+    align-content: space-between;
+    gap: 20px;
     padding: 22px;
+    overflow: visible;
+  }
+
+  .sidebarTop {
+    display: grid;
+    gap: 18px;
   }
 
   .content {
