@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile.api
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD_URLENCODED}@db:5432/${POSTGRES_DB}?schema=public
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
       PASSWORD_RESET_TTL_MINUTES: ${PASSWORD_RESET_TTL_MINUTES:-30}
@@ -29,9 +29,18 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "${INSTANTREPORT_API_HOST_PORT:-4000}:4000"
+      - "${INSTANTREPORT_API_HOST_PORT:-4000}:${APP_PORT:-4000}"
     volumes:
       - instantreport_uploads:/app/uploads
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:' + (process.env.APP_PORT || '4000') + '/api/docs').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
 
   web:
     build:
@@ -39,12 +48,12 @@ services:
       dockerfile: apps/web/Dockerfile
     restart: unless-stopped
     environment:
-      INSTANTREPORT_API_BASE_URL: ${INSTANTREPORT_API_BASE_URL:-http://api:4000/api}
+      INSTANTREPORT_API_BASE_URL: ${INSTANTREPORT_API_BASE_URL:-http://api:${APP_PORT:-4000}/api}
       INSTANTREPORT_PUBLIC_BACKEND_ORIGIN: ${INSTANTREPORT_PUBLIC_BACKEND_ORIGIN}
       INSTANTREPORT_SECURE_COOKIES: ${INSTANTREPORT_SECURE_COOKIES:-false}
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "${INSTANTREPORT_WEB_HOST_PORT:-3000}:3000"
 
@@ -55,7 +64,7 @@ services:
     profiles:
       - bootstrap
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD_URLENCODED}@db:5432/${POSTGRES_DB}?schema=public
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
       PASSWORD_RESET_TTL_MINUTES: ${PASSWORD_RESET_TTL_MINUTES:-30}

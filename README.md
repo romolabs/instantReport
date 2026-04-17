@@ -52,6 +52,7 @@ The repo now includes a Docker-based testing stack for `postgres`, `api`, `web`,
 1. Copy `.env.docker.example` to `.env.docker`.
 2. Set strong values for:
    - `POSTGRES_PASSWORD`
+   - `POSTGRES_PASSWORD_URLENCODED`
    - `JWT_SECRET`
    - `INSTANTREPORT_PUBLIC_BACKEND_ORIGIN`
 3. For HTTP-only testing on a private homelab, keep `INSTANTREPORT_SECURE_COOKIES=false`.
@@ -65,7 +66,8 @@ Default published ports:
 - api: `4000`
 
 Important deployment notes:
-- The web container talks to the API over Docker networking with `INSTANTREPORT_API_BASE_URL=http://api:4000/api`.
+- `POSTGRES_PASSWORD_URLENCODED` must match `POSTGRES_PASSWORD`, but URL-encoded for use inside `DATABASE_URL`. If you keep the password alphanumeric, both values can be identical.
+- The web container talks to the API over Docker networking with `INSTANTREPORT_API_BASE_URL=http://api:${APP_PORT:-4000}/api`.
 - Browser-visible attachment links use `INSTANTREPORT_PUBLIC_BACKEND_ORIGIN`, so set it to the real host/IP users will open in the browser, for example `http://your-homelab-ip:4000`.
 - Uploaded ticket evidence is persisted in the Docker volume `instantreport_uploads`.
 - PostgreSQL data is persisted in the Docker volume `instantreport_postgres`.
