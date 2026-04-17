@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { getApiBaseUrl } from "@/lib/backend";
-import { SESSION_COOKIE_NAME } from "@/lib/session";
+import { SESSION_COOKIE_NAME, shouldUseSecureCookies } from "@/lib/session";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   cookieStore.set(SESSION_COOKIE_NAME, payload.accessToken, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldUseSecureCookies(),
     path: "/",
     maxAge: 60 * 60 * 8
   });

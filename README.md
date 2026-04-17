@@ -45,6 +45,31 @@ For staging or production, run `npm run prisma:migrate:deploy` first and only ru
 
 For local web + API development, run the backend on port `4000` so the Next.js app can stay on its default port.
 
+## Docker Testing Deployment
+
+The repo now includes a Docker-based testing stack for `postgres`, `api`, `web`, and persistent ticket uploads.
+
+1. Copy `.env.docker.example` to `.env.docker`.
+2. Set strong values for:
+   - `POSTGRES_PASSWORD`
+   - `JWT_SECRET`
+   - `INSTANTREPORT_PUBLIC_BACKEND_ORIGIN`
+3. For HTTP-only testing on a private homelab, keep `INSTANTREPORT_SECURE_COOKIES=false`.
+4. Start the stack:
+   - `docker compose --env-file .env.docker up -d --build`
+5. Run first-time bootstrap data explicitly:
+   - `docker compose --env-file .env.docker --profile bootstrap run --rm bootstrap`
+
+Default published ports:
+- web: `3000`
+- api: `4000`
+
+Important deployment notes:
+- The web container talks to the API over Docker networking with `INSTANTREPORT_API_BASE_URL=http://api:4000/api`.
+- Browser-visible attachment links use `INSTANTREPORT_PUBLIC_BACKEND_ORIGIN`, so set it to the real host/IP users will open in the browser, for example `http://your-homelab-ip:4000`.
+- Uploaded ticket evidence is persisted in the Docker volume `instantreport_uploads`.
+- PostgreSQL data is persisted in the Docker volume `instantreport_postgres`.
+
 ## Current API Modules
 
 - `auth`

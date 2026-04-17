@@ -9,6 +9,12 @@ export function getApiBaseUrl() {
 }
 
 export function getBackendOrigin() {
+  const explicitOrigin = process.env.INSTANTREPORT_PUBLIC_BACKEND_ORIGIN?.trim();
+
+  if (explicitOrigin) {
+    return explicitOrigin;
+  }
+
   return new URL(getApiBaseUrl()).origin;
 }
 

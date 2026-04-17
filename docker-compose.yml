@@ -1,0 +1,81 @@
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - instantreport_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      PASSWORD_RESET_TTL_MINUTES: ${PASSWORD_RESET_TTL_MINUTES:-30}
+      APP_PORT: ${APP_PORT:-4000}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${INSTANTREPORT_API_HOST_PORT:-4000}:4000"
+    volumes:
+      - instantreport_uploads:/app/uploads
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    environment:
+      INSTANTREPORT_API_BASE_URL: ${INSTANTREPORT_API_BASE_URL:-http://api:4000/api}
+      INSTANTREPORT_PUBLIC_BACKEND_ORIGIN: ${INSTANTREPORT_PUBLIC_BACKEND_ORIGIN}
+      INSTANTREPORT_SECURE_COOKIES: ${INSTANTREPORT_SECURE_COOKIES:-false}
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "${INSTANTREPORT_WEB_HOST_PORT:-3000}:3000"
+
+  bootstrap:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    profiles:
+      - bootstrap
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      PASSWORD_RESET_TTL_MINUTES: ${PASSWORD_RESET_TTL_MINUTES:-30}
+      APP_PORT: ${APP_PORT:-4000}
+      SEED_ALLOW_NON_LOCAL_DATABASE: "true"
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD}
+      SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-System Admin}
+      SEED_ADMIN_DEPARTMENT: ${SEED_ADMIN_DEPARTMENT:-IT}
+      SEED_SYNC_DEFAULT_CATEGORIES: ${SEED_SYNC_DEFAULT_CATEGORIES:-false}
+      SEED_UPDATE_EXISTING_ADMIN: ${SEED_UPDATE_EXISTING_ADMIN:-false}
+      SEED_RESET_ADMIN_PASSWORD: ${SEED_RESET_ADMIN_PASSWORD:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "npm run prisma:migrate:deploy && npm run db:seed"]
+    restart: "no"
+    volumes:
+      - instantreport_uploads:/app/uploads
+
+volumes:
+  instantreport_postgres:
+  instantreport_uploads:
