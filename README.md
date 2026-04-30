@@ -2,9 +2,6 @@
 
 Internal help desk MVP for technical support ticketing.
 
-## Session Handoff
-
-Read `MEMORY.md` first when resuming work in a new thread.
 
 ## Current Scope
 
